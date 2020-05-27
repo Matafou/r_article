@@ -7,6 +7,30 @@
 %\usepackage[francais]{babel}
 \usepackage[english]{babel}
 
+
+\usepackage{listings}
+\usepackage{mathpartir}
+%pour la mise en page des tableaux
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{tikz}
+
+\newcommand{\titlebox}[2]{% 
+\tikzstyle{titlebox}=[rectangle,inner sep=10pt,inner ysep=10pt,draw]% 
+\tikzstyle{title}=[fill=white]% 
+% 
+\bigskip\noindent\begin{tikzpicture} 
+\node[titlebox] (box){% 
+\begin{minipage}{0.2\textwidth} 
+#2 
+\end{minipage} 
+}; 
+%\draw[color=blue] (box.north west)--(box.north east); 
+\node[title] at (box.north) {#1}; 
+\end{tikzpicture}\bigskip% 
+}
+
+
 %pour les commentaires
 \usepackage{verbatim}
 
@@ -87,6 +111,8 @@ pdfstartview={FitH}} % ajuste la page à la largueur de l'écran
 \input{./work.tex}
 
 \ottall
+
+\input{./tyrules.tex}
 
 \input{./bib.tex}
 

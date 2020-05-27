@@ -1,7 +1,16 @@
 
-metavar var, x, n ::= {{ com term variable }}
+metavar var, x, n, s ::= {{ com term variable }}
 {{ isa string}} {{ coq nat}} {{ hol string}} {{ lem string }} {{ coq-equality }}
 {{ ocaml int}} {{ lex alphanum}} {{ tex \mathit{[[var]]} }}
+
+%metavar d ::= {{ tex \delta }} {{}}
+
+%metavar v ::= {{ tex \nu }}
+%{{ isa string}} {{ coq nat}} {{ hol string}} {{ lem string }} {{ coq-equality }}
+%{{ ocaml int}} {{ lex alphanum}} {{ tex \mathit{[[var]]} }}
+
+indexvar index, i, j ::= {{ isa num }} {{ coq nat }} {{ hol num }} 
+
 
 
 grammar
@@ -41,22 +50,24 @@ terminals :: 'terminals_' ::=
   | cc :: :: context {{ tex \mathbb{ C } }}
   | rr :: :: context_ret {{ tex \mathbb{ R } }}
 
-e :: 'e_' ::=
+e :: 'e_' ::= {{ com expression }}
   | n :: :: numlit
   | s :: :: strlit
   | x :: :: var
-  | x[[e]] :: :: array_access
-  | {e; e} :: :: block
+  | x[[ e ]] :: :: array_access
+  | { e1 ; e2 } :: :: block
   | function( >f ) e :: :: function_decl
   | x( >a ) :: :: function_call
   | x <- e :: :: assignment
   | x <<- e :: :: supassignment
-  | x[[e]] <- e :: :: array_assignment
-  | x[[e]] <<- e :: :: array_superassignment
-  | attr(e,e) :: :: attribute_extraction
-  | attr(e,e) <- e :: :: attribute_assignment
+  | x[[ e1 ]] <- e2 :: :: array_assignment
+  | x[[ e1 ]] <<- e2 :: :: array_superassignment
+  | attr( e1 , e2 ) :: :: attribute_extraction
+  | attr( e1 , e2 ) <- e3 :: :: attribute_assignment
   | u :: :: value
-  | v ( >a ) :: :: partially_reduced_function_calls
+  | v ( >a ) :: M:: partially_reduced_function_calls
+  | cc  [ e ] :: M:: ctx
+  | rr [ e ] :: M:: ctx2
   
 f :: 'f_' ::=
   | x :: :: var
@@ -70,8 +81,9 @@ a :: 'a_' ::=
 H :: 'H_' ::=
   | empty :: :: empty_heap
   | H[ i /F] :: :: heap_frame_mapping
-  | H[ d / e env ] :: :: heap_promise_mapping
+  | H[ d / e G ] :: :: heap_promise_mapping
   | H[ v / primvattr ] :: :: heap_primitive_value_mapping
+  | H[ d / v ] :: :: heap_value_address
 
 attr {{ tex \alpha }} :: 'attr_' ::=
   | v_opt v_opt :: :: attribute_pair
@@ -84,44 +96,45 @@ primv {{ tex \kappa }} :: 'primv_' ::=
   | num[ >n ] :: :: num_array
   | str[ >s ] :: :: str_array
   | gen[ >v ] :: :: addr_array
-  | \ >f . e, env :: :: closure
+  | \ >f . e, G :: :: closure
 
 frame {{ tex F }} :: 'frame_' ::=
   | [] :: :: empty_frame
-  | F[x/u] :: :: frame_binding
+  | F[ x / u ] :: :: frame_binding
 
-closure_env {{ tex \Gamma }} :: 'closure_env_' ::=
+G {{ tex \Gamma }} :: 'closure_env_' ::=
   | [] :: :: empty_env
-  | i * env :: :: frame_address
+  | i * G :: :: frame_address
 
-expression_stack {{ tex S }} :: 'expression_stack_' ::=
+%expression_stack {{ tex S }} :: 'expression_stack_' ::=
+S :: 'expression_stack_' ::=
   | [] :: :: empty_stack
-  | e env * S :: :: stack
+  | e G * S :: :: stack
 
 
 
 
 
 
-typescheme, sigma {{ tex \sigma }} :: 'tyscheme_' ::=
-  | forall alpha . sigma :: :: gentvar
-  | forall alphac . sigma :: ::  gencvar
-  | tau :: :: ty
+%typescheme, sigma {{ tex \sigma }} :: 'tyscheme_' ::=
+%  | forall alpha . sigma :: :: gentvar
+%  | forall alphac . sigma :: ::  gencvar
+%  | tau :: :: ty
 
-constraint, c :: 'cs_' ::=
-  | alphac :: :: cvar
-  | exists x dpn tau :: :: exists
-  | c and c' :: :: conjonction
+%constraint, c :: 'cs_' ::=
+%  | alphac :: :: cvar
+%  | exists x dpn tau :: :: exists
+%  | c and c' :: :: conjonction
 
-type, tau {{ tex  \tau }} :: 'ty_' ::=
-  | alpha :: :: type
-  | ( >tau ) ->c tau' :: :: arrowty
+%type, tau {{ tex  \tau }} :: 'ty_' ::=
+%  | alpha :: :: type
+%  | ( >tau ) ->c tau' :: :: arrowty
 
-G {{ tex \Gamma }}  :: 'env_' ::=
-  | x : sigma , G :: :: bind_env
-  | alpha , G :: :: tvar_env
-  | alphac , G :: :: cvar_env
-  | empty :: :: empty_env
+%G {{ tex \Gamma }}  :: 'env_' ::=
+%  | x : sigma , G :: :: bind_env
+%  | alpha , G :: :: tvar_env
+%  | alphac , G :: :: cvar_env
+%  | empty :: :: empty_env
 
 
 %v :: 'v_' ::= 
@@ -131,49 +144,79 @@ G {{ tex \Gamma }}  :: 'env_' ::=
 %  | n :: :: numerics
 
 
-state, st :: 's_' ::=
-| S * H :: :: truc
+%state, st :: 's_' ::=
+%| S * H :: :: truc
 
 rr {{ tex \mathbb{ R } }} :: 'rr_' ::=
-| [] :: :: empty_context
-| { v ; rr } :: :: add_context
+| { v ; __ } :: :: add_context
   
 cc {{ tex \mathbb{ C } }} :: 'cc_' ::=
 | x <- __ :: :: assignment_context
-%| x [[ __ ]] :: :: subset_context
-%| x [[ e ]] <- __ :: :: subset_assignment_context
-%| x [[ __ ]] <- v :: :: subset_assignment_context2
-%| { __ ; e } :: :: sequence_context
-%| { v ; __ } :: :: sequence_context2
+| x[[ __ ]] :: :: subset_context
+| x[[ e ]] <- __ :: :: subset_assignment_context
+| x[[ __ ]] <- v :: :: subset_assignment_context2
+| { __ ; e } :: :: sequence_context
+| { v ; __ } :: :: sequence_context2
+
+
+formula :: formula_ ::=
+| judgement :: :: judgement
+| H( d ) = e G :: :: heap_promise_proj
+| H( v ) = primv :: :: heap_primv_proj
+| H = H' :: :: heap_is
+| getfun( H , G , x ) = d :: :: getfun_promise
+| getfun( H , G , x ) = v :: :: getfun_value
+| args ( f , a , G , G' , H) = F , G'' , H' :: :: args
 
 contextrules
 cc _:: e :: e
+rr _:: e :: e
 
 %subrules
-%  v <:: e
+%  u <:: e
+
+
+
 
 defns
 Red :: '' ::=
 
 defn
-expression_stack ; H ==> expression_stack' ; H' :: ::reduce::'' by
+S ; H ==> S' ; H' :: ::reduce::'' by
+
+e G ; H --> e' ; H'
+---------------- :: exp
+cc [ e ] G * S ; H ==> cc [ e' ] G * S ; H'
+
+H( d ) = e G'
+------------------- :: ForceP
+cc [ d ] G * S ; H ==>  e G' * cc [ d ] G * S ; H
+
+getfun(H,G,x) = d
+-------------------------- :: ForceF
+cc [ x(>a) ] G * S ; H ==> d G * cc [ x( >a) ] G * S ; H
+
+getfun(H,G,x) = v
+-------------------------- :: GetF
+cc [ x(>a) ] G * S ; H ==> d G * cc [ v( >a) ] G * S ; H
 
 
----------------- :: exp2
-cc [e] env ; empty ==> expression_stack' ; empty
+H(v) = \ >f . e, G'
+args(f, a, G, G', H) = F, G'', H'
+-------------------------- :: InvF
+cc [ v(>a) ] G * S ; H ==> e G'' * cc [ v( >a) ] G * S ; H'
 
------------------------ :: exp
-expression_stack ; empty ==> expression_stack' ; empty
+H' = H[ d / v ]
+------------------- :: RetP
+rr [ v ] G' * cc [ d ] G * S ; H ==>  cc [ d ] G * S ; H'
 
-
--------------------------- :: RetF2
-v ( >a) env * S ; H  ==> expression_stack' ; H'
 
 -------------------------- :: RetF
-e env * S ; H  ==> expression_stack' ; H'
+rr [ v' ] G' * cc [ v ( >a ) ] G * S ; H ==> cc [ v' ] G * S ; H'
+
 
 defn
-e env ; H --> e' ; H' :: ::ereduce::'' by
+e G ; H --> e' ; H' :: ::ereduce::'' by
 
 %fake rule
 

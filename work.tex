@@ -10,10 +10,27 @@ Knowing that, it appeared to us from the very beginning that it was more clever 
 To understand the philosophy behind R and its user base, we need to dive in the story of its inception. R is a programing language born in 1993, at the start of the research project lead by Ross Ihaka and Robert Gentlemen at Auckland University. The first official release of R as a finished product was in 2000, it was first built as a variant of the S language that had been created by Rick Becker, John Chambers, Doug Punn, Paul Tukey and Graham Wilkinson in the Bell labs.
 As a true heir of S, R inherited its intrinsic ambiguity. Both are far more than just programing languages, they were thought and created to be a system, a language and an environment. The underlying philosophy is to provide the users with a tool in the shape of an interactive environment in which users  don't consciously see themselves programming, up to the point where their needs become specific enough that the provided functionalities do not suit them anymore, they can then have at disposal a language and a system expressive enough to satisfy them.
 
+This led to a peculiar mix of features rarely seen mixed together:
+\begin{enumerate}
+\item[]-R is a predominantly higher order functional language (first class functions)
+\item[]-It has dynamic typing as in LISP, scheme or javascript.
+\item[]-The manipulated values are essentially matrices whose columns can have heterogeneous types and hold missing elements.
+\item[]-The binding of the variables is lexical but name lookup is done dynamically
+\item[]-The evaluation of parameters during a function call is lazy.
+\item[]-There are reflective traits as in LISP.
+\item[]-The language provides different object oriented programming systems that have been added as it evolved, each version aiming to overcome the weaknesses of the previous one, while maintaining compatibility.
+\end{enumerate}
 
 Our approach is to work on R itself, keeping its syntax and its semantic, and provide a static typechecker on a wide enough subset of the language. We want such a type system to be able to detect type errors when they may occur (namely dynamic type errors occuring during the execution of the program) in a static fashion, but still be able to recover from the encounter with a type error and  perform the typechecking on the rest of the program as if nothing happened. This is a requirement for us because as we will see some of R features are highly dynamic and will just not be tamed to fit a static type system, but still, such features cannot be entirely abandonned and should be taken into consideration. By integrating from the get go in the type system ``support`` for what is not supported, we aim at providing a type checker that can be used on real world R programs as soon as possible even if we do not yet, and most likely never will, support the whole language. Thankfully there has been a lot of work in the field of computer science on related subjects that help us in our endeavour.
 
 Part of the work is also to integrate an implementation of the type system in an integrated development environment called "R++" being worked on by Zebrys.
+
+
+On one hand the usefulness of a language like R is indisputable as shown by the number of packages and the vitality of the community of users, but on the other hand some choices in the language design are now questionable. In particular, they undermine code robustness and efficient execution, while the size of statisticians' data is growing rapidly, thus leading the community into real performance problems. These performance issues are twofold, some are due to the standard R interpreter not exploiting the parallelism of modern devices (multi-core architecture, GPU), others are inherent to the language design that makes some optimizations difficult or impossible without imposing restrictions on the programs considered.
+The objective of the thesis is threefold, each objective being a step towards the next:
+1. Develop and formalize an algorithm for typing R programs, supporting as much as possible of the R language. Like typescript for javascript, this program should be usable by an R developer as a code analysis tool to detect some error classes statically rather than later when testing or recieving user anomalies reports.
+2. This typechecker, possibly constrained for features deemed unsuitable for the high performance code, will serve as a basic brick for the compiler that will be developed later. The purpose of this work is to enable the statistician to work on data in the order of magnitude of one gigabyte on a single computer. Performance gains will justify the restriction to a subset of the language.
+3. Compilation towards distributed code might eventually be done to consider computations involving real big-data.\\
 
 \subsection{Static type system for R}
 

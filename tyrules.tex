@@ -1,0 +1,269 @@
+
+\titlebox{language}{
+\begin{mathpar}
+e ::= x | exp
+
+exp ::= \lambda(x, \ ..., \ x). \ e \ | \ e(e, \ ..., \ e) \ | \ e; e \ | \ x \leftarrow e
+\end{mathpar}
+}
+
+\titlebox{Syntaxe des types, des contraintes et des environnements}{
+\begin{mathpar}
+\Gamma ::= x : \sigma, \ \Gamma \ | \alpha, \Gamma | \alpha_c, \Gamma | \ \emptyset
+
+H ::= \exists x :_n \tau, \ H \ | \ \alpha_c, \ H \ | \ \emptyset
+
+U ::= x : \tau, \ U \ | \ \emptyset
+
+\sigma ::= \forall \alpha. \ \sigma \ | \forall \alpha_c . \ \sigma \ | \ \tau
+
+\tau ::= (\tau, ..., \tau) \rightarrow_{[c]} \tau \ | \ \alpha
+
+c ::= \exists x :_n \tau \ | \ c \land c \ | \ \alpha_c
+
+\end{mathpar}
+}
+
+\titlebox{Rules (1)}{
+\begin{mathpar}
+  \def \RightTirName #1{\rm\hbox {\hskip 1ex (#1)}}
+  \inferrule*[Left=Assign]
+             {
+               \Gamma, U, H \vdash_{false, n} e : \sigma, \ \Gamma', U' \\
+               \forall (x : \tau_x) \in U'. (x : \sigma, \ \Gamma'), \emptyset, H \vdash_{false, n} x : \tau_x, (x : \sigma, \ \Gamma'), \emptyset
+             }
+             { \Gamma, U, H \vdash_{false, n} x = e : \sigma, (x : \sigma, \ \Gamma'), U' }
+
+  \inferrule*[Left=Seq]
+             { \Gamma, U, H \vdash_{b,n} e_1 : \tau_1, \Gamma_1, U_1 \\ \Gamma_1, U_1, H \vdash_{b,n} e_2 : \tau_2, \Gamma_2, U_2 }
+             { \Gamma, U, H \vdash_{b,n} e_1; e_2 : \tau_2, \Gamma_2, U_2 }
+
+  \inferrule* [Left=Abs]
+              {
+                (x_0 : \tau_0, ..., x_n : \tau_n), \emptyset, H_f \vdash_{false,n+1} e : \tau_r, \Gamma_f, U_f  \\
+                H_f \Rightarrow_n c_f  \\
+                \tau_{r'} = simpl_{n+1}(\Gamma_f \cup ftv(H_f) \cup fcv(H_f), \tau_r) \\
+                WF((\tau_0, ..., \tau_n) \rightarrow_{[c_f]} \tau_{r'})
+              }
+              {
+                \Gamma, U, H \vdash_{b,n} \lambda (x_0, ... , x_n). e : (\tau_0, ..., \tau_n) \rightarrow_{[c_f]} \tau_{r'}, \ \Gamma, U
+              }
+
+  \inferrule* [Left=App]
+              {
+                \Gamma, U, H \vdash_{b,n} e_f : (\tau_0, ..., \tau_m) \rightarrow_{[c_f]} \tau_r, \Gamma', U_f \\
+                \Gamma', \emptyset, H \vdash_{true,n} e_0 : \tau_0, \Gamma', U_0  \\ ... \\
+                \Gamma', \emptyset, H \vdash_{true,n} e_n : \tau_n, \Gamma', U_n \\
+                H \vdash_n simpl_n(\Gamma' \cup ftv(H) \cup fcv(H), c_f)
+              }
+              {
+                \Gamma, U, H \vdash_{b,n} e_f (e_0, ..., e_n) : \tau_r, \ \Gamma', U_f \cup U_0 \cup ... \cup U_n
+              }
+
+\end{mathpar}
+
+
+\begin{mathpar}
+  \inferrule* [Left=Var]
+              { }
+              { \Gamma, U, H \vdash_{false,n} x : \Gamma(x), \Gamma, U }
+
+
+  \inferrule* [Left=Var, Right={$\#\forall(\Gamma(x)) = 0$}]
+              { }
+              { \Gamma, U, H \vdash_{true,n} x : \Gamma(x), \Gamma, (x : \Gamma(x)) \cup U }
+
+
+  \inferrule* [Left=Var, Right=$\#\forall(\Gamma(x)) > 0$]
+              { }
+              { \Gamma, U, H \vdash_{true,n} x : \Gamma(x), \Gamma, U }
+\end{mathpar}
+
+\begin{mathpar}
+
+
+  \inferrule* [Left=FreeVar]
+              { x \notin \Gamma \\ H \vdash \exists x :_{n-1} \tau \\ WF(\tau) }
+              { \Gamma, U, H \vdash_{false,n} x : \tau, \Gamma, U }
+
+
+  \inferrule* [Left=FreeVar]
+              { x \notin \Gamma \\ H \vdash \exists x :_{n-1} \tau \\ WF(\tau) }
+              { \Gamma, U, H \vdash_{true,n} x : \tau, \Gamma, (x : \tau) \cup U }
+\end{mathpar}
+
+
+}
+
+\titlebox{Règles (2)}{
+\begin{mathpar}
+  \inferrule*[Left=Gen]
+             { \Gamma, U, H \vdash_{b,n} e : \sigma, \Gamma', U' \\
+               \alpha \notin ftv(\Gamma) \cup ftv(H) }
+             { \Gamma, U, H \vdash_{b,n} e : \forall \alpha. \sigma, \Gamma', U' }
+\\
+  \inferrule*[Left=GenC]
+             { \Gamma, U, H \vdash_{b,n} e : \sigma, \Gamma', U' \\
+               \alpha_c \notin fcv(\Gamma) \cup fcv(H)}
+             { \Gamma, U, H \vdash_{b,n} e : \forall \alpha_c. \sigma, \Gamma', U' }
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule*[Left=Inst]
+             { \Gamma, U, H \vdash_{false,n} e : \forall \alpha. \sigma, \ \Gamma', U' }
+             { \Gamma, U, H \vdash_{false,n} e : [\alpha \Rightarrow \tau] \sigma, \ \Gamma', U' }
+\\
+  \inferrule*[Left=InstVar, Right={$\#\forall(\sigma) = 0$}]
+             { \Gamma, U, H \vdash_{true,n} x : \forall \alpha. \sigma, \ \Gamma, U
+             }
+             { \Gamma, U, H \vdash_{true,n} x : [\alpha \Rightarrow \tau] \sigma, \ \Gamma, \ (x : [\alpha \Rightarrow \tau] \sigma) \cup U }
+\\
+  \inferrule*[Left=InstVar, Right={$\#\forall(\sigma) > 0$}]
+             { \Gamma, U, H \vdash_{true,n} x : \forall \alpha. \sigma, \ \Gamma, U
+             }
+             { \Gamma, U, H \vdash_{true,n} x : [\alpha \Rightarrow \tau] \sigma, \ \Gamma, U }
+\\
+  \inferrule*[Left=InstExp]
+             { \Gamma, U, H \vdash_{true,n} exp : \forall \alpha. \sigma, \ \Gamma, U'
+             }
+             { \Gamma, U, H \vdash_{true,n} exp : [\alpha \Rightarrow \tau] \sigma, \ \Gamma, U' }
+
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule*[Left=InstC]
+             { \Gamma, U, H \vdash_{false,n} e : \forall \alpha_c. \sigma, \Gamma', U' }
+             { \Gamma, U, H \vdash_{false,n} e : [\alpha_c \Rightarrow c] \sigma, \Gamma', U' }
+\\
+  \inferrule*[Left=InstCVar, Right={$\#\forall(\sigma) = 0$}]
+             { \Gamma, U, H \vdash_{true,n} x : \forall \alpha_c. \sigma, \Gamma, U
+             }
+             { \Gamma, U, H \vdash_{true,n} x : [\alpha_c \Rightarrow c] \sigma, \Gamma, \ (x : [\alpha_c \Rightarrow c] \sigma) \cup U }
+\\
+  \inferrule*[Left=InstCVar, Right={$\#\forall(\sigma) > 0$}]
+             { \Gamma, U, H \vdash_{true,n} x : \forall \alpha_c. \sigma, \Gamma, U
+             }
+             { \Gamma, U, H \vdash_{true,n} x : [\alpha_c \Rightarrow c] \sigma, \Gamma, U }
+\\
+  \inferrule*[Left=InstCExp]
+             { \Gamma, U, H \vdash_{true,n} exp : \forall \alpha_c. \sigma, \Gamma, U' }
+             { \Gamma, U, H \vdash_{true,n} exp : [\alpha_c \Rightarrow c] \sigma, \Gamma, U' }
+\end{mathpar}
+}
+
+
+
+
+\titlebox{WF}{
+\begin{mathpar}
+  \inferrule*
+      { }
+      { WF(\alpha) }
+
+  \inferrule*
+      { WF(\tau_r) \\ WF(c) \\ wf(\tau_0) \\ ... \\ wf(\tau_n) }
+      { WF((\tau_0, ..., \tau_n) \rightarrow_{[c]}\tau_r) }
+
+  \inferrule*
+      { }
+      { WF(\alpha_c) }
+
+  \inferrule*
+      { WF(c_1) \\ WF(c_2) }
+      { WF(c_1 \land c_2) }
+
+  \inferrule*
+      { wf(\tau) }
+      { WF(\exists x : \tau) }
+
+  \inferrule*
+      { }
+      { wf(\alpha) }
+
+  \inferrule*
+      { wf(\tau_0) \\ ... \\ wf(\tau_n) \\ wf(\tau_r) }
+      { wf((\tau_0, ..., \tau_n) \rightarrow_{[\alpha_c]}\tau_r) }
+
+\end{mathpar}
+}
+
+
+\titlebox{simpl}{
+\begin{mathpar}
+
+
+  \inferrule*
+      { }
+      { simpl_n(\Gamma, \alpha) \Rightarrow \alpha }
+
+   \inferrule*
+      {  }
+      { simpl_n(\Gamma, \alpha_c) \Rightarrow \alpha_c }
+
+  \inferrule*
+      { simpl_n(\Gamma, \tau_r) \Rightarrow \tau_r' \\ simpl_n(\Gamma, c) \Rightarrow c' }
+      { simpl_n(\Gamma, (\tau_0, ..., \tau_n) \rightarrow_{[c]}\tau_r) \Rightarrow (\tau_0, ..., \tau_n) \rightarrow_{[c']}\tau_r' }
+
+   \inferrule*
+      { simpl_n(\Gamma, c_1) \Rightarrow c_3 \\ simpl_n(\Gamma, c_2) \Rightarrow c_4 }
+      { simpl_n(\Gamma, c_1 \land c_2) \Rightarrow c_3 \land c_4 }
+
+   \inferrule*
+      { x \notin \Gamma}
+      { simpl_n(\Gamma, \exists x :_{n} \tau) \Rightarrow \exists x :_{n-1} \tau }
+
+   \inferrule*
+      {  }
+      { simpl_n(\Gamma, \exists x :_{n-1} \tau) \Rightarrow \exists x :_{n-1} \tau }
+
+
+
+
+   \inferrule* [Right={$\alpha_c \ chosen \ fresh$}]
+      {  \Gamma, \emptyset, \emptyset \vdash_{false, n} x : \tau, \Gamma, \emptyset }
+      { simpl_n(\Gamma, \exists x :_n \tau) \Rightarrow \alpha_c }
+
+
+
+\end{mathpar}
+}
+
+
+\titlebox{Transformation des hypothèses vers les contraintes}{
+\begin{mathpar}
+  \inferrule*[Right={$\alpha_c \ chosen \ fresh$}]
+      {  }
+      { \emptyset \Rightarrow_n \alpha_c }
+
+
+  \inferrule*
+      {  H \Rightarrow_n c }
+      { (\exists x :_n \tau), H \Rightarrow_n (\exists x :_n \tau) \land c }
+
+  \inferrule*
+      {  }
+      { \alpha_c \Rightarrow_n \alpha_c }
+
+\end{mathpar}
+} 
+
+\titlebox{Satisfaction des contraintes}{
+\begin{mathpar}
+  \inferrule*[Right={$n > 0$}]
+      { \alpha_c \in H }
+      { H \vdash_n \alpha_c }
+
+  \inferrule*
+      {  }
+      { H \vdash_0 \alpha_c }
+
+  \inferrule*
+      { (\exists x :_n \tau) \in H }
+      { H \vdash_n \exists x :_n \tau }
+
+  \inferrule*
+      { H \vdash_n c_1 \\ H \vdash_n c_2 }
+      { H \vdash_n c_1 \land c_2 }
+
+\end{mathpar}
+} 
