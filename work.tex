@@ -1,0 +1,71 @@
+
+\chapter{Work done}
+
+\section{Introduction}
+
+R is a language dedicated to statistical analysis and computing, manipulation and visualisation of data associated with it. The R programming language has been around for several years now and has never stopped gaining in popularity. As a byproduct R now has a dense ecosystem composed of several thousands of user made packages available to every developer, this alone represents millions of lines of code and hours carefully put into broadening the scope of R applications. It has always been the case that R as a programming language was thought to be easy to pick up, the usual workflow for a standard user looks like this: find the right package for the job, load your data, apply a function on said data, get the result of your computation in a nicely presented fashion.
+Knowing that, it appeared to us from the very beginning that it was more clever to take a conservative approach, and refrain from redefining the language as a whole building some new R that would never take off and just become a nice oddity forgotten in a corner.
+
+
+To understand the philosophy behind R and its user base, we need to dive in the story of its inception. R is a programing language born in 1993, at the start of the research project lead by Ross Ihaka and Robert Gentlemen at Auckland University. The first official release of R as a finished product was in 2000, it was first built as a variant of the S language that had been created by Rick Becker, John Chambers, Doug Punn, Paul Tukey and Graham Wilkinson in the Bell labs.
+As a true heir of S, R inherited its intrinsic ambiguity. Both are far more than just programing languages, they were thought and created to be a system, a language and an environment. The underlying philosophy is to provide the users with a tool in the shape of an interactive environment in which users  don't consciously see themselves programming, up to the point where their needs become specific enough that the provided functionalities do not suit them anymore, they can then have at disposal a language and a system expressive enough to satisfy them.
+
+
+Our approach is to work on R itself, keeping its syntax and its semantic, and provide a static typechecker on a wide enough subset of the language. We want such a type system to be able to detect type errors when they may occur (namely dynamic type errors occuring during the execution of the program) in a static fashion, but still be able to recover from the encounter with a type error and  perform the typechecking on the rest of the program as if nothing happened. This is a requirement for us because as we will see some of R features are highly dynamic and will just not be tamed to fit a static type system, but still, such features cannot be entirely abandonned and should be taken into consideration. By integrating from the get go in the type system ``support`` for what is not supported, we aim at providing a type checker that can be used on real world R programs as soon as possible even if we do not yet, and most likely never will, support the whole language. Thankfully there has been a lot of work in the field of computer science on related subjects that help us in our endeavour.
+
+Part of the work is also to integrate an implementation of the type system in an integrated development environment called "R++" being worked on by Zebrys.
+
+\subsection{Static type system for R}
+
+
+R belongs to the family of dynamically typed languages, and just like python or javascript it means that unrecoverable type error may occur during the execution of a program, leading to the halt of said execution. Our goal is to define a type system such that we can statically garantee that certain class of errors will not occur at the runtime. We do not aim at typing the whole language but a reasonable subset can be achieved.
+It is convenient to first talk about the semantic of R. At its core, lies a functional heart, argument passing is always performed by value rather than by reference, and there is a copy-on-write mechanism impemented. Functions are first class valuesand as such can be passed as en argument or serve as a returned value. R implements a form of lazyness limited to the arguments passed during a function call, the strategy of evaluation is by necessity. It is worth noting that here the call by nessecity is not just an optimised form of a call by name, but that it has real impacts on the general semantic of the language, that is because of the way environment and name lookup work in R. R also features object oriented programming, with several different object oriented systems coexisting with one another, operations working in a transparent way on matrices, vectors and lists, and a powerful reflexive programming capability. All these mixed together offer some intresesting challenges typing wise.
+
+
+\subsubsection{Scopes and bindings}
+
+Even if the scope of variables is lexical, any- free variable occuring in the body of a function is not fixed by the state of the environment at the time of the definition of the function but by the state of the environment at the time the function is called, the value bound to the free variable is determined by looking across the hierarchy of the environments englobing the definition of the function.
+
+
+
+UN EXEMPLE?
+
+
+
+\subsubsection{Basics}
+
+how does this work?
+
+\subsubsection{R Semantic}
+
+Formal semantic for R fragment
+
+\subsubsection{Type System}
+
+The typing rules
+
+\subsubsection{Type Inference}
+
+how do we infer types?
+
+\subsubsection{Constraint Language}
+
+inference as a constraint solving problem
+
+\subsubsection{Constraint Generation}
+
+generating said constraints
+
+\subsubsection{Constraint Solving}
+
+solving the constraints
+
+
+typing a function call
+Control Structures
+Super Assignments
+Object oriented programming
+Overloading
+Gradual Typing
+R oddities
+Implementation

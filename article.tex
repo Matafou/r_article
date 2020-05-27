@@ -1,0 +1,97 @@
+
+%\documentclass{article}
+
+\documentclass[a4paper]{report}
+
+\usepackage[latin1]{inputenc}
+%\usepackage[francais]{babel}
+\usepackage[english]{babel}
+
+%pour les commentaires
+\usepackage{verbatim}
+
+%pour les informations sur un document compilé en PDF et les liens externes / internes
+\usepackage{hyperref}
+
+%modifier la mise en page de l'abstract
+\usepackage{abstract}
+
+%espacement entre les lignes
+\usepackage{setspace}
+
+%police et mise en page (marges) du document
+\usepackage[T1]{fontenc}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+
+%inference rules ott packages
+\usepackage{amsmath,amssymb}
+\usepackage{supertabular}
+\usepackage{geometry}
+\usepackage{ifthen}
+\usepackage{alltt}%hack
+\geometry{a4paper,dvips,twoside,left=22.5mm,right=22.5mm,top=20mm,bottom=30mm}
+\usepackage{color}
+\input{./rules.tex}
+
+%====================== INFORMATION ET REGLES ======================
+
+%rajouter les numérotation pour les \paragraphe et \subparagraphe
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+
+\hypersetup{							% Information sur le document
+pdfauthor = {
+  Elie Canonici Merle
+},% Auteurs
+pdftitle = {
+  Titre Article
+},% Titre du document
+pdfsubject = {R},		% Sujet
+pdfkeywords = {Tag1, Tag2, Tag3, ...},	% Mots-clefs
+pdfstartview={FitH}} % ajuste la page à la largueur de l'écran
+%pdfcreator = {MikTeX},% Logiciel qui a crée le document
+%pdfproducer = {}} % Société avec produit le logiciel
+
+\begin{document}
+
+%régler l'espacement entre les lignes
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+%page de garde
+\input{./title.tex}
+
+%page blanche
+\newpage
+~
+%ne pas numéroter cette page
+\thispagestyle{empty}
+\newpage
+
+\input{./abstract.tex}
+
+\tableofcontents
+\thispagestyle{empty}
+\setcounter{page}{0}
+%ne pas numéroter le sommaire
+
+\newpage
+
+%====================== INCLUSION DES PARTIES ======================
+
+~
+\thispagestyle{empty}
+%recommencer la numérotation des pages à "1"
+\setcounter{page}{0}
+\newpage
+
+\input{./work.tex}
+
+\ottall
+
+\input{./bib.tex}
+
+\end{document}
+
+
+
+
