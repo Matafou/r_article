@@ -5,11 +5,11 @@ metavar var, x, n, s ::= {{ com term variable }}
 
 %metavar d ::= {{ tex \delta }} {{}}
 
-%metavar v ::= {{ tex \nu }}
+metavar v ::= {{ com term variable }} {{ tex \nu }}
 %{{ isa string}} {{ coq nat}} {{ hol string}} {{ lem string }} {{ coq-equality }}
 %{{ ocaml int}} {{ lex alphanum}} {{ tex \mathit{[[var]]} }}
 
-indexvar index, i, j ::= {{ isa num }} {{ coq nat }} {{ hol num }} 
+indexvar index, j ::= {{ isa num }} {{ coq nat }} {{ hol num }} 
 
 
 
@@ -49,6 +49,11 @@ terminals :: 'terminals_' ::=
   | primvattr :: :: primitive_value_with_attributes {{ tex \kappa^{\alpha} }}
   | cc :: :: context {{ tex \mathbb{ C } }}
   | rr :: :: context_ret {{ tex \mathbb{ R } }}
+  | != :: :: neq {{ tex \neq }}
+  | === :: :: equi {{ tex \equiv }}
+  | \/ :: :: or {{ tex \vee }}
+  | notin :: :: notin {{ tex \notin  }}
+  | bottom :: :: bottom {{ tex \bot }}
 
 e :: 'e_' ::= {{ com expression }}
   | n :: :: numlit
@@ -56,8 +61,8 @@ e :: 'e_' ::= {{ com expression }}
   | x :: :: var
   | x[[ e ]] :: :: array_access
   | { e1 ; e2 } :: :: block
-  | function( >f ) e :: :: function_decl
-  | x( >a ) :: :: function_call
+  | function( lf ) e :: :: function_decl
+  | x( la ) :: :: function_call
   | x <- e :: :: assignment
   | x <<- e :: :: supassignment
   | x[[ e1 ]] <- e2 :: :: array_assignment
@@ -65,7 +70,7 @@ e :: 'e_' ::= {{ com expression }}
   | attr( e1 , e2 ) :: :: attribute_extraction
   | attr( e1 , e2 ) <- e3 :: :: attribute_assignment
   | u :: :: value
-  | v ( >a ) :: M:: partially_reduced_function_calls
+  | v ( la ) :: M:: partially_reduced_function_calls
   | cc  [ e ] :: M:: ctx
   | rr [ e ] :: M:: ctx2
   
@@ -73,17 +78,26 @@ f :: 'f_' ::=
   | x :: :: var
   | x = e :: :: var_dft
 
+lf {{ tex \overline{f} }} :: 'lf_' ::=
+  | [] :: :: empty_list
+  | f :: :: arg
+  | f lf :: :: args
+
 a :: 'a_' ::=
-  | x :: :: var
+  | e :: :: var
   | x = e :: :: var_dft
 
+la {{ tex \overline{a} }} :: 'alist_' ::=
+  | [] :: :: empty_list
+  | a :: :: arg
+  | a la :: :: args
 
 H :: 'H_' ::=
   | empty :: :: empty_heap
-  | H[ i /F] :: :: heap_frame_mapping
-  | H[ d / e G ] :: :: heap_promise_mapping
-  | H[ v / primvattr ] :: :: heap_primitive_value_mapping
-  | H[ d / v ] :: :: heap_value_address
+  | H [ i / F ] :: :: heap_frame_mapping
+  | H [ d / e G ] :: :: heap_promise_mapping
+  | H [ v / primvattr ] :: :: heap_primitive_value_mapping
+  | H [ d / v ] :: :: heap_value_address
 
 attr {{ tex \alpha }} :: 'attr_' ::=
   | v_opt v_opt :: :: attribute_pair
@@ -96,11 +110,12 @@ primv {{ tex \kappa }} :: 'primv_' ::=
   | num[ >n ] :: :: num_array
   | str[ >s ] :: :: str_array
   | gen[ >v ] :: :: addr_array
-  | \ >f . e, G :: :: closure
+  | \ lf . e, G :: :: closure
 
-frame {{ tex F }} :: 'frame_' ::=
+F :: 'frame_' ::=
   | [] :: :: empty_frame
-  | F[ x / u ] :: :: frame_binding
+  | F [ x / u ] :: :: frame_binding
+  | F [ x / bottom ] :: :: bottom_binding
 
 G {{ tex \Gamma }} :: 'closure_env_' ::=
   | [] :: :: empty_env
@@ -148,9 +163,11 @@ S :: 'expression_stack_' ::=
 %| S * H :: :: truc
 
 rr {{ tex \mathbb{ R } }} :: 'rr_' ::=
+| __ :: :: simple_context
 | { v ; __ } :: :: add_context
   
 cc {{ tex \mathbb{ C } }} :: 'cc_' ::=
+| __ :: :: simple_context
 | x <- __ :: :: assignment_context
 | x[[ __ ]] :: :: subset_context
 | x[[ e ]] <- __ :: :: subset_assignment_context
@@ -159,14 +176,34 @@ cc {{ tex \mathbb{ C } }} :: 'cc_' ::=
 | { v ; __ } :: :: sequence_context2
 
 
+P :: 'ppp' ::=
+| e :: :: single_exp
+| e P :: :: exp_head
+| [] :: :: no_exp
+
+N :: 'nnn' ::=
+| x = e :: :: id_bind
+| x = e N :: :: id_bind_head
+| N N' :: :: n_conc
+| [] :: :: no_bind
+
+
+
 formula :: formula_ ::=
 | judgement :: :: judgement
 | H( d ) = e G :: :: heap_promise_proj
+| H( d ) = v :: :: heap_promise_proj_data_address
 | H( v ) = primv :: :: heap_primv_proj
+| H( v ) != primv :: :: not_heap_primv_proj
 | H = H' :: :: heap_is
-| getfun( H , G , x ) = d :: :: getfun_promise
-| getfun( H , G , x ) = v :: :: getfun_value
-| args ( f , a , G , G' , H) = F , G'' , H' :: :: args
+| G = G' :: :: env_is
+| i ( H , x ) = u :: :: heap_frame_proj
+| i fresh :: :: i_fresh
+| d fresh :: :: d_fresh
+| f === f' :: :: f_equi
+| N === N' :: :: N_equi
+| formula \/ formula' :: M :: or
+| x notin N :: :: x_notin_N
 
 contextrules
 cc _:: e :: e
@@ -176,10 +213,10 @@ rr _:: e :: e
 %  u <:: e
 
 
-
-
 defns
 Red :: '' ::=
+
+
 
 defn
 S ; H ==> S' ; H' :: ::reduce::'' by
@@ -194,17 +231,17 @@ cc [ d ] G * S ; H ==>  e G' * cc [ d ] G * S ; H
 
 getfun(H,G,x) = d
 -------------------------- :: ForceF
-cc [ x(>a) ] G * S ; H ==> d G * cc [ x( >a) ] G * S ; H
+cc [ x(la) ] G * S ; H ==> d G * cc [ x(la) ] G * S ; H
 
 getfun(H,G,x) = v
 -------------------------- :: GetF
-cc [ x(>a) ] G * S ; H ==> d G * cc [ v( >a) ] G * S ; H
+cc [ x(la) ] G * S ; H ==> d G * cc [ v(la) ] G * S ; H
 
 
-H(v) = \ >f . e, G'
-args(f, a, G, G', H) = F, G'', H'
+H(v) = \ lf . e, G'
+args(lf, la, G, G', H) = F, G'', H'
 -------------------------- :: InvF
-cc [ v(>a) ] G * S ; H ==> e G'' * cc [ v( >a) ] G * S ; H'
+cc [ v(la) ] G * S ; H ==> e G'' * cc [ v(la) ] G * S ; H'
 
 H' = H[ d / v ]
 ------------------- :: RetP
@@ -212,7 +249,11 @@ rr [ v ] G' * cc [ d ] G * S ; H ==>  cc [ d ] G * S ; H'
 
 
 -------------------------- :: RetF
-rr [ v' ] G' * cc [ v ( >a ) ] G * S ; H ==> cc [ v' ] G * S ; H'
+rr [ v ] G' * cc [ v2 ( la ) ] G * S ; H ==> cc [ v ] G * S ; H'
+
+
+
+
 
 
 defn
@@ -222,3 +263,118 @@ e G ; H --> e' ; H' :: ::ereduce::'' by
 
 ---------------- :: eexp
 e env ; H --> e' ; H'
+
+
+
+
+
+defn
+getfun( H , G , x ) = u :: ::getfun::'' by
+
+---------------::GetFun
+getfun(H,G,x) = u
+
+G = i * G'
+i ( H , x ) = v
+H(v) = \ lf . e, G''
+---------------::GetF1
+getfun(H,G,x) = v
+
+G = i * G'
+i ( H , x ) = d
+H(d) = v
+H(v) = \ lf . e, G''
+-------------::GetF3
+getfun(H,G,x) = v
+
+
+G = i * G'
+i ( H , x ) = d
+H(d) = e G''
+-------------::GetF4
+getfun(H,G,x) = d
+
+defn
+getfun( H , G , x ) = getfun( H' , G' , x' ) :: ::getfun_eq::'' by
+
+G = i * G'
+i ( H , x ) = v
+H(v) != \ lf . e, G''
+---------------::GetF2
+getfun(H,G,x) = getfun(H,G',x)
+
+
+G = i * G'
+i ( H , x ) = d
+H(d) = v
+H(v) != \ lf . e, G''
+---------------::GetF5
+getfun(H,G,x) = getfun(H,G',x)
+
+
+
+defn
+split( la , P , N ) = P' , N' :: ::split_is::'' by
+
+split(la,P,N) = P', N'
+----------------------------------- :: split1
+split(x = e la, P, N) = P' , x = e N'
+
+split(la, P, N) = P', N'
+----------------------------:: split2
+split(e la, P, N) = e P', N'
+
+
+------------------------:: split3
+split([], P, N) = P, N
+
+
+
+defn
+args ( lf , la , G , G' , H) = F , G'' , H' :: ::args_is::'' by
+
+split(la, [] , []) = P, N
+i fresh
+G'' = i * G'
+args2(lf, P, N, G, G'', H) = F, H'
+H'' = H'[ i / F ]
+------------------------------------::Args
+args(lf, la, G, G', H) = F, G'', H''
+
+defn
+args2 ( lf , P , N , G , G' , H ) = F , H' :: ::args2_is::'' by
+
+
+f0 === x \/ f0 === x = e'
+N === N x = e N''
+args2( lf , P , N' N'' , G , G' , H ) = F, H'
+d fresh
+H'' = H' [ d / e G ]
+-----------------------------------------------::Args1
+args2(f0 lf, P, N, G, G', H) = F [ x / d ], H''
+
+f0 === x \/ f0 === x = e'
+x notin N
+args2( lf , P , N , G , G' , H ) = F, H'
+d fresh
+H'' = H' [ d / e G ]
+-----------------------------------------------::Args2
+args2(f0 lf, e P, N, G, G', H) = F [ x / d ], H''
+
+f0 === x \/ f0 === x = e'
+N === N x = e N''
+args2( lf , P , N' N'' , G , G' , H ) = F, H'
+d fresh
+H'' = H' [ d / e G ]
+-----------------------------------------------::Args3
+args2(x lf, [], N, G, G', H) = F [ x / bottom ], H''
+
+x notin N
+args2( lf , [] , N , G , G' , H ) = F, H'
+d fresh
+H'' = H' [ d / e G' ]
+-----------------------------------------------::Args4
+args2(x = e lf, [], N, G, G', H) = F [ x / d ], H''
+
+-----------------------------------------------::Args5
+args2([], [], [], G, G', H) = [], H''
