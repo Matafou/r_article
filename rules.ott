@@ -34,7 +34,7 @@ terminals :: 'terminals_' ::=
 %  | >f :: :: formals {{ tex \overline{f} }}
 %  | >n :: :: nums {{ tex \overline{n} }}
 %  | >s :: :: strs {{ tex \overline{s} }}
-  | >v :: :: addresses {{ tex \overline{\nu} }}
+%  | >v :: :: addresses {{ tex \overline{\nu} }}
   | empty :: :: empty {{ tex \emptyset }}
   | dpn :: :: doublepointn {{ tex :_{n} }}
   | and :: :: conj {{ tex \land }}
@@ -45,7 +45,7 @@ terminals :: 'terminals_' ::=
 %  | v_opt :: :: possibly_missing_data_object_address {{ tex \nu_{\bot} }}
   | env :: :: environment {{ tex \Gamma }}
   | primv :: :: primitive_value{{ tex \kappa }}
-  | attr :: :: attribute {{ tex \alpha }}
+%  | attr :: :: attribute {{ tex \alpha }}
   | primvattr :: :: primitive_value_with_attributes {{ tex \kappa^{\alpha} }}
   | cc :: :: context {{ tex \mathbb{ C } }}
   | rr :: :: context_ret {{ tex \mathbb{ R } }}
@@ -76,6 +76,11 @@ e :: 'e_' ::= {{ com expression }}
 
 v {{ tex \nu }} :: 'data_object_address_' ::=
 
+lv {{ tex \overline{v} }} :: 'lv_' ::=
+| v :: :: single_address
+| lv v :: :: address_head
+| [] :: :: empty
+
 ln {{ tex \overline{n} }} :: 'ln_' ::=
 | n :: :: single_num
 | n ln :: :: num_head
@@ -83,7 +88,7 @@ ln {{ tex \overline{n} }} :: 'ln_' ::=
 
 ls {{ tex \overline{s} }} :: 'ls_' ::=
 | s :: :: single_str
-| s ls :: :: str_head
+| ls s :: :: str_head
 | [] :: :: empty
 
 f :: 'f_' ::=
@@ -108,7 +113,7 @@ H :: 'H_' ::=
   | empty :: :: empty_heap
   | H [ i / F ] :: :: heap_frame_mapping
   | H [ d / e G ] :: :: heap_promise_mapping
-  | H [ v / primvattr ] :: :: heap_primitive_value_mapping
+  | H [ v_opt / primvattr ] :: :: heap_primitive_value_mapping
   | H [ d / v ] :: :: heap_value_address
 
 attr {{ tex \alpha }} :: 'attr_' ::=
@@ -125,7 +130,7 @@ u :: 'u_' ::=
 primv {{ tex \kappa }} :: 'primv_' ::=
   | num[ ln ] :: :: num_array
   | str[ ls ] :: :: str_array
-  | gen[ >v ] :: :: addr_array
+  | gen[ lv ] :: :: addr_array
   | \ lf . e, G :: :: closure
 
 primvattr {{ tex \kappa^{\alpha} }} :: 'primvattr_' ::=
@@ -213,7 +218,8 @@ formula :: formula_ ::=
 | H( d ) = e G :: :: heap_promise_proj
 | H( d ) = v :: :: heap_promise_proj_data_address
 | H( i ) = F :: :: heap_frame_proj
-| H( v ) = primv :: :: heap_primv_proj
+| H( v_opt ) = primv :: :: heap_primv_proj
+| H ( v_opt ) = primvattr :: :: heap_primvattr_proj
 | H( v ) != primv :: :: not_heap_primv_proj
 | H = H' :: :: heap_is
 | G = G' :: :: env_is
@@ -336,6 +342,65 @@ readn(v, H) = m
 get(v', m, H) = v'', H'
 -------------------------:: Get
 x[[v]] G ; H --> v'' ; H'
+
+
+cpy(H, v') = H', v''
+G = i * G'
+i(H', x) = v'''
+readn(v, H') = m
+set(v''', m, v'', H') = H''
+-------------------------------:: SetL
+x[[v]] <- v' G ; H --> v' ; H''
+
+
+cpy(H, v') = H', v''
+G = i * G'
+H'(i) = F
+x notin F
+G'(H',x) = v'''
+cpy(H', v''') = H'', v''''
+F' = F [ x / v'''' ]
+H''' = H'' [ i / F' ]
+readn(v, H) = m
+set(v'''', m, v'', H''') = H''''
+-------------------------------:: SetG
+x[[v]] <- v' G ; H --> v' ; H''''
+
+
+H(v) = primv attr
+attr = v_opt v_opt'
+index(v',v_bot', H) = n
+get(v_bot,n,h) = v''
+------------------------------:: GetA
+attr(v, v') G ; H --> v'' ; H
+
+
+H(v) = primv attr
+attr = v_opt v_opt'
+index(v',v_opt',H) = n)
+set(v,n,v'',H) = H'
+-------------------------------:: ReplA
+attr(v, v') <- v'' G ; H --> v'' ; H'
+
+cpy(H, v'') = H', v'''
+H'(v) = primv v_opt v_opt'
+index(v', v_opt', H') = bottom
+reads(v', H) = s
+H'(v_opt) = gen[ lv ] attr
+H'(v_opt') = str[ ls ] attr'
+H'' = H' [v_opt / gen[ lv v'''] attr ] [ v_opt' / str[ ls s ] attr' ]
+--------------------------------------:: SetA
+attr(v, v') <- v'' G ; H --> v'' ; H''
+
+cpy(H, v'') = H', v3
+H'(v) = primv bottom bottom
+v4 fresh
+v5 fresh
+reads(v', H') = s
+H'' = H' [v4 / gen[ v3 ] bottom bottom ] [ v5 / str[ s ] bottom bottom ]
+--------------------------------------:: SetB
+attr(v, v') <- v'' G ; H --> v'' ; H''
+
 
 defn
 getfun( H , G , x ) = u :: ::getfun::'' by
