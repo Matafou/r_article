@@ -5,7 +5,7 @@ metavar var, x, n, s ::= {{ com term variable }}
 
 %metavar d ::= {{ tex \delta }} {{}}
 
-metavar v ::= {{ com term variable }} {{ tex \nu }}
+%metavar v ::= {{ com term variable }} {{ tex \nu }}
 %{{ isa string}} {{ coq nat}} {{ hol string}} {{ lem string }} {{ coq-equality }}
 %{{ ocaml int}} {{ lex alphanum}} {{ tex \mathit{[[var]]} }}
 
@@ -30,10 +30,10 @@ terminals :: 'terminals_' ::=
 %  | sigma :: :: sigma {{ tex \sigma }}
 %  | tau :: :: tau {{ tex \tau }}
 %  | exists :: :: exists {{ tex \exists }}
-  | >a :: :: args {{ tex \overline{a} }}
-  | >f :: :: formals {{ tex \overline{f} }}
-  | >n :: :: nums {{ tex \overline{n} }}
-  | >s :: :: strs {{ tex \overline{s} }}
+%  | >a :: :: args {{ tex \overline{a} }}
+%  | >f :: :: formals {{ tex \overline{f} }}
+%  | >n :: :: nums {{ tex \overline{n} }}
+%  | >s :: :: strs {{ tex \overline{s} }}
   | >v :: :: addresses {{ tex \overline{\nu} }}
   | empty :: :: empty {{ tex \emptyset }}
   | dpn :: :: doublepointn {{ tex :_{n} }}
@@ -41,8 +41,8 @@ terminals :: 'terminals_' ::=
   | seq :: :: seq {{ tex \vdash }}
   | i :: :: frame_address {{ tex \iota }}
   | d :: :: promise_address {{ tex \delta }}
-  | v :: :: data_object_address {{ tex \nu }}
-  | v_opt :: :: possibly_missing_data_object_address {{ tex \nu_{\bot} }}
+%  | v :: :: data_object_address {{ tex \nu }}
+%  | v_opt :: :: possibly_missing_data_object_address {{ tex \nu_{\bot} }}
   | env :: :: environment {{ tex \Gamma }}
   | primv :: :: primitive_value{{ tex \kappa }}
   | attr :: :: attribute {{ tex \alpha }}
@@ -73,7 +73,19 @@ e :: 'e_' ::= {{ com expression }}
   | v ( la ) :: M:: partially_reduced_function_calls
   | cc  [ e ] :: M:: ctx
   | rr [ e ] :: M:: ctx2
-  
+
+v {{ tex \nu }} :: 'data_object_address_' ::=
+
+ln {{ tex \overline{n} }} :: 'ln_' ::=
+| n :: :: single_num
+| n ln :: :: num_head
+| [] :: :: empty
+
+ls {{ tex \overline{s} }} :: 'ls_' ::=
+| s :: :: single_str
+| s ls :: :: str_head
+| [] :: :: empty
+
 f :: 'f_' ::=
   | x :: :: var
   | x = e :: :: var_dft
@@ -100,17 +112,24 @@ H :: 'H_' ::=
   | H [ d / v ] :: :: heap_value_address
 
 attr {{ tex \alpha }} :: 'attr_' ::=
-  | v_opt v_opt :: :: attribute_pair
+  | v_opt v_opt' :: :: attribute_pair
+
+v_opt {{ tex \nu_{\bot} }} :: 'v_opt_' ::=
+  | v :: :: data_address
+  | bottom :: :: no_address
 
 u :: 'u_' ::=
   | d :: :: promise_address
   | v :: :: data_object_address
 
 primv {{ tex \kappa }} :: 'primv_' ::=
-  | num[ >n ] :: :: num_array
-  | str[ >s ] :: :: str_array
+  | num[ ln ] :: :: num_array
+  | str[ ls ] :: :: str_array
   | gen[ >v ] :: :: addr_array
   | \ lf . e, G :: :: closure
+
+primvattr {{ tex \kappa^{\alpha} }} :: 'primvattr_' ::=
+  | primv attr :: M:: attr {{ tex [[primv]]^{[[attr]]} }}
 
 F :: 'frame_' ::=
   | [] :: :: empty_frame
@@ -193,17 +212,23 @@ formula :: formula_ ::=
 | judgement :: :: judgement
 | H( d ) = e G :: :: heap_promise_proj
 | H( d ) = v :: :: heap_promise_proj_data_address
+| H( i ) = F :: :: heap_frame_proj
 | H( v ) = primv :: :: heap_primv_proj
 | H( v ) != primv :: :: not_heap_primv_proj
 | H = H' :: :: heap_is
 | G = G' :: :: env_is
-| i ( H , x ) = u :: :: heap_frame_proj
+| F = F' :: :: frame_is
+| G ( H , x ) = u :: :: env_proj
+| attr = attr' :: :: attr_is
+| i ( H , x ) = u :: :: heap_frame__binding_proj
 | i fresh :: :: i_fresh
 | d fresh :: :: d_fresh
+| v fresh :: :: v_fresh
 | f === f' :: :: f_equi
 | N === N' :: :: N_equi
 | formula \/ formula' :: M :: or
 | x notin N :: :: x_notin_N
+| cpy( H , v ) = H' , v' :: :: cpy
 
 contextrules
 cc _:: e :: e
@@ -262,11 +287,55 @@ e G ; H --> e' ; H' :: ::ereduce::'' by
 %fake rule
 
 ---------------- :: eexp
-e env ; H --> e' ; H'
+e G ; H --> e' ; H'
+
+v fresh
+attr = bottom bottom
+H' = H [ v / num[n] attr ]
+---------------- :: Num
+n G ; H --> v ; H'
+
+v fresh
+attr = bottom bottom
+H' = H [ v / str[s] attr ]
+---------------- :: Str
+s G ; H --> v ; H'
+
+v fresh
+attr = bottom bottom
+H' = H [ v / \lf.e,G attr ]
+---------------- :: Fun
+function(lf) e G ; H --> v ; H'
+
+G(H,x) = u
+------------------:: Find
+x G ; H --> u ; H
+
+H(d) = v
+-------------------:: GetP
+d G ; H --> v ; H'
 
 
+cpy(H, v) = H', v'
+G = i * G'
+H(i) = F
+F' = F [x / v']
+H'' = H' [i / F']
+-----------------------:: Ass
+x <- v G ; H --> v ; H''
 
 
+cpy(H,v) = H', v'
+G = i * G'
+assign(x,v',G',H') = H''
+------------------------:: DAss
+x <<- v G ; H --> v ; H''
+
+G(H,x) = v'
+readn(v, H) = m
+get(v', m, H) = v'', H'
+-------------------------:: Get
+x[[v]] G ; H --> v'' ; H'
 
 defn
 getfun( H , G , x ) = u :: ::getfun::'' by
