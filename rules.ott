@@ -19,17 +19,18 @@ terminals :: 'terminals_' ::=
   | \            ::   :: lambda  {{ tex \lambda }}
   | -->          ::   :: red     {{ tex \longrightarrow }}
   | ==> :: :: bred {{ tex \Longrightarrow }}
-%  | ->          ::   :: func     {{ tex \rightarrow }}
-%  | ->c          ::   :: funcc   {{ tex \rightarrow_{[c]} }}
+  | ->          ::   :: func     {{ tex \rightarrow }}
+%  | ->(c)          ::   :: funcc   {{ tex \rightarrow_{[c]} }}
 %  | >x :: :: arrowx {{ tex \overrightarrow{x} }}
 %  | >t :: :: arrowt {{ tex \overrightarrow{t} }}
 %  | >tau :: :: arrowtau {{ tex \overrightarrow{\tau} }}
 %  | <- :: :: assign {{ tex \leftarrow }}
-%  | forall :: :: forall {{ tex \forall }}
-%  | alphac :: :: alphac {{ tex \alpha_{c} }}
+  | forall :: :: forall {{ tex \forall }}
+  | alphac :: :: alphac {{ tex \alpha_{c} }}
+  | alpha :: :: alpha {{ tex \alpha }}
 %  | sigma :: :: sigma {{ tex \sigma }}
 %  | tau :: :: tau {{ tex \tau }}
-%  | exists :: :: exists {{ tex \exists }}
+   | exists :: :: exists {{ tex \exists }}
 %  | >a :: :: args {{ tex \overline{a} }}
 %  | >f :: :: formals {{ tex \overline{f} }}
 %  | >n :: :: nums {{ tex \overline{n} }}
@@ -55,6 +56,7 @@ terminals :: 'terminals_' ::=
   | notin :: :: notin {{ tex \notin  }}
   | bottom :: :: bottom {{ tex \bot }}
   | __ :: :: context_hole {{ tex [] }}
+  | |- :: :: vdash {{ tex \vdash }}
 
 e :: 'e_' ::= {{ com expression }}
   | n :: :: numlit
@@ -146,35 +148,10 @@ G {{ tex \Gamma }} :: 'closure_env_' ::=
   | [] :: :: empty_env
   | i * G :: :: frame_address
 
-%expression_stack {{ tex S }} :: 'expression_stack_' ::=
 S :: 'expression_stack_' ::=
   | [] :: :: empty_stack
   | e G * S :: :: stack
 
-
-
-
-
-
-%typescheme, sigma {{ tex \sigma }} :: 'tyscheme_' ::=
-%  | forall alpha . sigma :: :: gentvar
-%  | forall alphac . sigma :: ::  gencvar
-%  | tau :: :: ty
-
-%constraint, c :: 'cs_' ::=
-%  | alphac :: :: cvar
-%  | exists x dpn tau :: :: exists
-%  | c and c' :: :: conjonction
-
-%type, tau {{ tex  \tau }} :: 'ty_' ::=
-%  | alpha :: :: type
-%  | ( >tau ) ->c tau' :: :: arrowty
-
-%G {{ tex \Gamma }}  :: 'env_' ::=
-%  | x : sigma , G :: :: bind_env
-%  | alpha , G :: :: tvar_env
-%  | alphac , G :: :: cvar_env
-%  | empty :: :: empty_env
 
 
 %v :: 'v_' ::= 
@@ -183,9 +160,6 @@ S :: 'expression_stack_' ::=
 %  | FALSE :: :: false
 %  | n :: :: numerics
 
-
-%state, st :: 's_' ::=
-%| S * H :: :: truc
 
 rr {{ tex \mathbb{ R } }} :: 'rr_' ::=
 | __ :: :: simple_context
@@ -527,14 +501,47 @@ args2([], [], [], G, G', H) = [], H''
 
 grammar
 
-type, tau {{ tex  \tau }} :: 'ty_' ::=
+type, ty {{ tex  \tau }} :: 'ty_' ::=
 | alpha :: :: type
-| ( >tau ) ->c tau' :: :: arrowty
+| ( lty ) ->( c ) ty' :: :: arrowty {{ tex ( [[lty]] ) \rightarrow_{[ [[c]] ]} [[ty']] }}
+
+lty {{ tex \overline{\tau} }} :: 'lty_' ::=
+| [] :: :: empty
+| ty lty :: :: ty_head
+
+typescheme, sigma {{ tex \sigma }} :: 'tyscheme_' ::=
+| forall alpha . sigma :: :: gentvar
+| forall alphac . sigma :: ::  gencvar
+| ty :: :: ty
+
+constraint, c :: 'cs_' ::=
+| alphac :: :: cvar
+| exists x dpn ty :: :: exists
+| c and c' :: :: conjonction
+
+
+Gt {{ tex \Gamma }}  :: 'env_' ::=
+| x : sigma , Gt :: :: bind_env
+| alpha , Gt :: :: tvar_env
+| alphac , Gt :: :: cvar_env
+| empty :: :: empty_env
+
+U :: 'args_set' ::=
+| x : ty , U :: :: arg_pair
+| empty :: :: ty
+
+hy :: 'hyp_' ::=
+| exists x dpn ty :: :: exists
+| alphac :: :: alphac
+
+Hy :: 'Hyps_' ::=
+| hy , Hy :: :: hyp_head
+| empty :: :: empty
 
 defns
 Jtype :: '' ::=
 defn
-G |- tau :: :: typing ::'' by
+Gt |- ty :: :: typing ::'' by
 
 ------:: fake
-G |- tau
+Gt |- ty

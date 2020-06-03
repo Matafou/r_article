@@ -86,17 +86,15 @@ Assignments in R can update the relevant binding instead of simply masking it as
 
 \subsection{Function Definition}
 
-blabalbal
+Function definitions in R are of particular interest to us, as this is the only occurence of an expression of the langage that involves the definition of a new scope. This means that assignments performed in the body of a function will only be visible from this scope and its children. 
 
 \subsection{Function Call}
 
-blabalbalabal
+Function calls are special in the sense that they create a new frame, in which the evaluation is performed. This involves setting up the new frame with the arguments provided during the call, specifying the parent frame, the frame in which the function called was defined during execution and evaluating the body of the function.
 
 \subsection{Super Assignment}
 
-blablabla
-
-
+Super assignments are a special type of assignment whose semantic is rather unusual as they don't perform the assignment in the current frame but rather in the upper frames. The parent frame is searched for an occurence of the specified identifier, if it is found the assignment is done there, if not, we reiterate the process in the parent frame. We do this until the identifier is found or we reach the top frame and do not find the identifier, if the latter happens, a new assignment is registered in the top frame.
 
 \subsection{Control Structures}
 

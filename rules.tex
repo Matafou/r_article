@@ -36,6 +36,11 @@
 \ottfirstprodline{|}{ \lambda }{}{}{}{}\ottprodnewline
 \ottprodline{|}{ \longrightarrow }{}{}{}{}\ottprodnewline
 \ottprodline{|}{ \Longrightarrow }{}{}{}{}\ottprodnewline
+\ottprodline{|}{ \rightarrow }{}{}{}{}\ottprodnewline
+\ottprodline{|}{ \forall }{}{}{}{}\ottprodnewline
+\ottprodline{|}{ \alpha_{c} }{}{}{}{}\ottprodnewline
+\ottprodline{|}{ \alpha }{}{}{}{}\ottprodnewline
+\ottprodline{|}{ \exists }{}{}{}{}\ottprodnewline
 \ottprodline{|}{ \emptyset }{}{}{}{}\ottprodnewline
 \ottprodline{|}{ :_{n} }{}{}{}{}\ottprodnewline
 \ottprodline{|}{ \land }{}{}{}{}\ottprodnewline
@@ -52,7 +57,8 @@
 \ottprodline{|}{ \vee }{}{}{}{}\ottprodnewline
 \ottprodline{|}{ \notin }{}{}{}{}\ottprodnewline
 \ottprodline{|}{ \bot }{}{}{}{}\ottprodnewline
-\ottprodline{|}{ [] }{}{}{}{}}
+\ottprodline{|}{ [] }{}{}{}{}\ottprodnewline
+\ottprodline{|}{ \vdash }{}{}{}{}}
 
 \newcommand{\otte}{
 \ottrulehead{\ottnt{e}}{::=}{\ottcom{expression}}\ottprodnewline
@@ -230,8 +236,47 @@
 
 \newcommand{\otttype}{
 \ottrulehead{\ottnt{type}  ,\ \tau}{::=}{}\ottprodnewline
-\ottfirstprodline{|}{\ottkw{alpha}}{}{}{}{}\ottprodnewline
-\ottprodline{|}{\ottsym{(}  \ottsym{>tau}  \ottsym{)}  \ottsym{->c}  \tau'}{}{}{}{}}
+\ottfirstprodline{|}{\alpha}{}{}{}{}\ottprodnewline
+\ottprodline{|}{ (  \overline{\tau}  ) \rightarrow_{[  \ottnt{c}  ]}  \tau' }{}{}{}{}}
+
+\newcommand{\ottlty}{
+\ottrulehead{\overline{\tau}}{::=}{}\ottprodnewline
+\ottfirstprodline{|}{\ottsym{[]}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\tau \, \overline{\tau}}{}{}{}{}}
+
+\newcommand{\otttypescheme}{
+\ottrulehead{\ottnt{typescheme}  ,\ \sigma}{::=}{}\ottprodnewline
+\ottfirstprodline{|}{\forall \, \alpha \, \ottsym{.}  \sigma}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\forall \, \alpha_{c} \, \ottsym{.}  \sigma}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\tau}{}{}{}{}}
+
+\newcommand{\ottconstraint}{
+\ottrulehead{\ottnt{constraint}  ,\ \ottnt{c}}{::=}{}\ottprodnewline
+\ottfirstprodline{|}{\alpha_{c}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\exists \, \mathit{x} \, :_{n} \, \tau}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottnt{c} \, \land \, \ottnt{c'}}{}{}{}{}}
+
+\newcommand{\ottGt}{
+\ottrulehead{\Gamma}{::=}{}\ottprodnewline
+\ottfirstprodline{|}{\mathit{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\alpha \, \ottsym{,}  \Gamma}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\alpha_{c} \, \ottsym{,}  \Gamma}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\emptyset}{}{}{}{}}
+
+\newcommand{\ottU}{
+\ottrulehead{\ottnt{U}}{::=}{}\ottprodnewline
+\ottfirstprodline{|}{\mathit{x}  \ottsym{:}  \tau  \ottsym{,}  \ottnt{U}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\emptyset}{}{}{}{}}
+
+\newcommand{\otthy}{
+\ottrulehead{\ottnt{hy}}{::=}{}\ottprodnewline
+\ottfirstprodline{|}{\exists \, \mathit{x} \, :_{n} \, \tau}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\alpha_{c}}{}{}{}{}}
+
+\newcommand{\ottHy}{
+\ottrulehead{\ottnt{Hy}}{::=}{}\ottprodnewline
+\ottfirstprodline{|}{\ottnt{hy}  \ottsym{,}  \ottnt{Hy}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\emptyset}{}{}{}{}}
 
 \newcommand{\ottRed}{
 \ottrulehead{\ottnt{Red}}{::=}{}\ottprodnewline
@@ -245,7 +290,7 @@
 
 \newcommand{\ottJtype}{
 \ottrulehead{\ottnt{Jtype}}{::=}{}\ottprodnewline
-\ottfirstprodline{|}{\Gamma  \ottsym{\mbox{$\mid$}-}  \tau}{}{}{}{}}
+\ottfirstprodline{|}{\Gamma  \vdash  \tau}{}{}{}{}}
 
 \newcommand{\ottjudgement}{
 \ottrulehead{\ottnt{judgement}}{::=}{}\ottprodnewline
@@ -280,7 +325,14 @@
 \ottprodline{|}{\ottnt{P}}{}{}{}{}\ottprodnewline
 \ottprodline{|}{\ottnt{N}}{}{}{}{}\ottprodnewline
 \ottprodline{|}{\ottnt{formula}}{}{}{}{}\ottprodnewline
-\ottprodline{|}{\ottnt{type}}{}{}{}{}}
+\ottprodline{|}{\ottnt{type}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\overline{\tau}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottnt{typescheme}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottnt{constraint}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\Gamma}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottnt{U}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottnt{hy}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottnt{Hy}}{}{}{}{}}
 
 \newcommand{\ottgrammar}{\ottgrammartabular{
 \ottterminals\ottinterrule
@@ -308,6 +360,13 @@
 \ottN\ottinterrule
 \ottformula\ottinterrule
 \otttype\ottinterrule
+\ottlty\ottinterrule
+\otttypescheme\ottinterrule
+\ottconstraint\ottinterrule
+\ottGt\ottinterrule
+\ottU\ottinterrule
+\otthy\ottinterrule
+\ottHy\ottinterrule
 \ottRed\ottinterrule
 \ottJtype\ottinterrule
 \ottjudgement\ottinterrule
@@ -749,11 +808,11 @@
 %% defn typing
 \newcommand{\ottdrulefake}[1]{\ottdrule[#1]{%
 }{
-\Gamma  \ottsym{\mbox{$\mid$}-}  \tau}{%
+\Gamma  \vdash  \tau}{%
 {\ottdrulename{fake}}{}%
 }}
 
-\newcommand{\ottdefntyping}[1]{\begin{ottdefnblock}[#1]{$\Gamma  \ottsym{\mbox{$\mid$}-}  \tau$}{}
+\newcommand{\ottdefntyping}[1]{\begin{ottdefnblock}[#1]{$\Gamma  \vdash  \tau$}{}
 \ottusedrule{\ottdrulefake{}}
 \end{ottdefnblock}}
 
