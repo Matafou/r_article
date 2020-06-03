@@ -108,7 +108,14 @@ blablabalbala
 
 \section{Type System}
 
-Most of our work revolves around the formalization of a static type system for a fragment of R and its implementation in a usable fashion.
+Most of our work revolves around the formalization of a static type system for a fragment of R and its implementation in a usable fashion. Our approach follows the one described in 'The essence of ML type inference' by Fran\c cois Pottier and Didier R\'emy. That is, reducing the type inference problem to a constraint solving one. The overall strategy given a piece of R code is as follows:
+\begin{enumerate}
+\item[] parse the provided source code
+\item[] generate constraints corresponding to the welltypedness of the program
+\item[] solve said constraints
+\end{enumerate}
+
+The result being that once all the above steps have been completed, we then possess the related type informations on all the nodes of the program.
 
 \subsection{The Types}
 
@@ -132,6 +139,8 @@ solving the constraints
 
 \subsection{Implementation}
 
+
+The type inference has been implemented in C++ to work in conjunction with the IDE R++ being actively developped at Z\'ebrys. It was plugged in the code editor shipped with the software to perform live type analysis. The implementation was done following closely the formalization previously explained, in the spirit of 'The essence of ML type inference' by Fran\c cois Pottier and Didier R\'emy.
 
 blabalbla
 

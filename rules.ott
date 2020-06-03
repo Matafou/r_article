@@ -54,6 +54,7 @@ terminals :: 'terminals_' ::=
   | \/ :: :: or {{ tex \vee }}
   | notin :: :: notin {{ tex \notin  }}
   | bottom :: :: bottom {{ tex \bot }}
+  | __ :: :: context_hole {{ tex [] }}
 
 e :: 'e_' ::= {{ com expression }}
   | n :: :: numlit
@@ -192,7 +193,7 @@ rr {{ tex \mathbb{ R } }} :: 'rr_' ::=
   
 cc {{ tex \mathbb{ C } }} :: 'cc_' ::=
 | __ :: :: simple_context
-| x <- __ :: :: assignment_context
+| x <- __  :: :: assignment_context
 | x[[ __ ]] :: :: subset_context
 | x[[ e ]] <- __ :: :: subset_assignment_context
 | x[[ __ ]] <- v :: :: subset_assignment_context2
@@ -238,9 +239,13 @@ formula :: formula_ ::=
 | cpy( H , v ) = H' , v' :: :: cpy
 | assign( x , v , G , H ) = H' :: :: assign
 | readn( v , H ) = m :: :: readn
-| get( v , m , H ) = v' , H' :: :: get
-| set( v , m , v' , H ) = H'  :: :: set
-
+| get( v_opt , m , H ) = v_opt' , H' :: :: get
+| get( v_opt , n , H ) = v_opt' :: :: get2
+| set( v_opt , m , v_opt' , H ) = H'  :: :: set
+| set( v_opt , n , v_opt' , H ) = H'  :: :: set2
+| index( v_opt , v_opt' , H ) = n :: :: index
+| index( v_opt , v_opt' , H ) = bottom :: :: index2
+| reads( v , H ) = s :: :: reads
 contextrules
 cc _:: e :: e
 rr _:: e :: e
@@ -374,15 +379,15 @@ x[[v]] <- v' G ; H --> v' ; H''''
 
 H(v) = primv attr
 attr = v_opt v_opt'
-index(v',v_bot', H) = n
-get(v_bot,n,h) = v''
+index(v',v_opt', H) = n
+get(v_opt,n,H) = v''
 ------------------------------:: GetA
 attr(v, v') G ; H --> v'' ; H
 
 
 H(v) = primv attr
 attr = v_opt v_opt'
-index(v',v_opt',H) = n)
+index(v',v_opt',H) = n
 set(v,n,v'',H) = H'
 -------------------------------:: ReplA
 attr(v, v') <- v'' G ; H --> v'' ; H'
@@ -517,3 +522,19 @@ args2(x = e lf, [], N, G, G', H) = F [ x / d ], H''
 
 -----------------------------------------------::Args5
 args2([], [], [], G, G', H) = [], H''
+
+
+
+grammar
+
+type, tau {{ tex  \tau }} :: 'ty_' ::=
+| alpha :: :: type
+| ( >tau ) ->c tau' :: :: arrowty
+
+defns
+Jtype :: '' ::=
+defn
+G |- tau :: :: typing ::'' by
+
+------:: fake
+G |- tau

@@ -51,7 +51,8 @@
 \ottprodline{|}{ \equiv }{}{}{}{}\ottprodnewline
 \ottprodline{|}{ \vee }{}{}{}{}\ottprodnewline
 \ottprodline{|}{ \notin }{}{}{}{}\ottprodnewline
-\ottprodline{|}{ \bot }{}{}{}{}}
+\ottprodline{|}{ \bot }{}{}{}{}\ottprodnewline
+\ottprodline{|}{ [] }{}{}{}{}}
 
 \newcommand{\otte}{
 \ottrulehead{\ottnt{e}}{::=}{\ottcom{expression}}\ottprodnewline
@@ -167,18 +168,18 @@
 
 \newcommand{\ottrr}{
 \ottrulehead{\mathbb{ R }}{::=}{}\ottprodnewline
-\ottfirstprodline{|}{\ottkw{\_\_}}{}{}{}{}\ottprodnewline
-\ottprodline{|}{\ottsym{\{}  \nu  \ottsym{;} \, \ottkw{\_\_} \, \ottsym{\}}}{}{}{}{}}
+\ottfirstprodline{|}{[]}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{\{}  \nu  \ottsym{;} \, [] \, \ottsym{\}}}{}{}{}{}}
 
 \newcommand{\ottcc}{
 \ottrulehead{\mathbb{ C }}{::=}{}\ottprodnewline
-\ottfirstprodline{|}{\ottkw{\_\_}}{}{}{}{}\ottprodnewline
-\ottprodline{|}{\mathit{x}  \ottsym{<-} \, \ottkw{\_\_}}{}{}{}{}\ottprodnewline
-\ottprodline{|}{\ottsym{x[[} \, \ottkw{\_\_} \, \ottsym{]]}}{}{}{}{}\ottprodnewline
-\ottprodline{|}{\ottsym{x[[}  \ottnt{e}  \ottsym{]]}  \ottsym{<-} \, \ottkw{\_\_}}{}{}{}{}\ottprodnewline
-\ottprodline{|}{\ottsym{x[[} \, \ottkw{\_\_} \, \ottsym{]]}  \ottsym{<-}  \nu}{}{}{}{}\ottprodnewline
-\ottprodline{|}{\ottsym{\{} \, \ottkw{\_\_} \, \ottsym{;}  \ottnt{e}  \ottsym{\}}}{}{}{}{}\ottprodnewline
-\ottprodline{|}{\ottsym{\{}  \nu  \ottsym{;} \, \ottkw{\_\_} \, \ottsym{\}}}{}{}{}{}}
+\ottfirstprodline{|}{[]}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\mathit{x}  \ottsym{<-} \, []}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{x[[} \, [] \, \ottsym{]]}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{x[[}  \ottnt{e}  \ottsym{]]}  \ottsym{<-} \, []}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{x[[} \, [] \, \ottsym{]]}  \ottsym{<-}  \nu}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{\{} \, [] \, \ottsym{;}  \ottnt{e}  \ottsym{\}}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{\{}  \nu  \ottsym{;} \, [] \, \ottsym{\}}}{}{}{}{}}
 
 \newcommand{\ottP}{
 \ottrulehead{\ottnt{P}}{::=}{}\ottprodnewline
@@ -219,8 +220,18 @@
 \ottprodline{|}{\ottsym{cpy(}  \ottnt{H}  \ottsym{,}  \nu  \ottsym{)}  \ottsym{=}  \ottnt{H'}  \ottsym{,}  \nu'}{}{}{}{}\ottprodnewline
 \ottprodline{|}{\ottsym{assign(}  \mathit{x}  \ottsym{,}  \nu  \ottsym{,}  \Gamma  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \ottnt{H'}}{}{}{}{}\ottprodnewline
 \ottprodline{|}{\ottsym{readn(}  \nu  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=} \, \ottkw{m}}{}{}{}{}\ottprodnewline
-\ottprodline{|}{\ottsym{get(}  \nu  \ottsym{,} \, \ottkw{m} \, \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \nu'  \ottsym{,}  \ottnt{H'}}{}{}{}{}\ottprodnewline
-\ottprodline{|}{\ottsym{set(}  \nu  \ottsym{,} \, \ottkw{m} \, \ottsym{,}  \nu'  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \ottnt{H'}}{}{}{}{}}
+\ottprodline{|}{\ottsym{get(}  \nu_{\bot}  \ottsym{,} \, \ottkw{m} \, \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \nu_{\bot}'  \ottsym{,}  \ottnt{H'}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{get(}  \nu_{\bot}  \ottsym{,}  \mathit{n}  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \nu_{\bot}'}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{set(}  \nu_{\bot}  \ottsym{,} \, \ottkw{m} \, \ottsym{,}  \nu_{\bot}'  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \ottnt{H'}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{set(}  \nu_{\bot}  \ottsym{,}  \mathit{n}  \ottsym{,}  \nu_{\bot}'  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \ottnt{H'}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{index(}  \nu_{\bot}  \ottsym{,}  \nu_{\bot}'  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \mathit{n}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{index(}  \nu_{\bot}  \ottsym{,}  \nu_{\bot}'  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=} \, \bot}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{reads(}  \nu  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \mathit{s}}{}{}{}{}}
+
+\newcommand{\otttype}{
+\ottrulehead{\ottnt{type}  ,\ \tau}{::=}{}\ottprodnewline
+\ottfirstprodline{|}{\ottkw{alpha}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{(}  \ottsym{>tau}  \ottsym{)}  \ottsym{->c}  \tau'}{}{}{}{}}
 
 \newcommand{\ottRed}{
 \ottrulehead{\ottnt{Red}}{::=}{}\ottprodnewline
@@ -232,9 +243,14 @@
 \ottprodline{|}{\ottkw{args} \, \ottsym{(}  \overline{f}  \ottsym{,}  \overline{a}  \ottsym{,}  \Gamma  \ottsym{,}  \Gamma'  \ottsym{,}  \ottsym{H)}  \ottsym{=}  \ottnt{F}  \ottsym{,}  \Gamma''  \ottsym{,}  \ottnt{H'}}{}{}{}{}\ottprodnewline
 \ottprodline{|}{\ottsym{args2}  \ottsym{(}  \overline{f}  \ottsym{,}  \ottnt{P}  \ottsym{,}  \ottnt{N}  \ottsym{,}  \Gamma  \ottsym{,}  \Gamma'  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \ottnt{F}  \ottsym{,}  \ottnt{H'}}{}{}{}{}}
 
+\newcommand{\ottJtype}{
+\ottrulehead{\ottnt{Jtype}}{::=}{}\ottprodnewline
+\ottfirstprodline{|}{\Gamma  \ottsym{\mbox{$\mid$}-}  \tau}{}{}{}{}}
+
 \newcommand{\ottjudgement}{
 \ottrulehead{\ottnt{judgement}}{::=}{}\ottprodnewline
-\ottfirstprodline{|}{\ottnt{Red}}{}{}{}{}}
+\ottfirstprodline{|}{\ottnt{Red}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottnt{Jtype}}{}{}{}{}}
 
 \newcommand{\ottuserXXsyntax}{
 \ottrulehead{\ottnt{user\_syntax}}{::=}{}\ottprodnewline
@@ -263,7 +279,8 @@
 \ottprodline{|}{\mathbb{ C }}{}{}{}{}\ottprodnewline
 \ottprodline{|}{\ottnt{P}}{}{}{}{}\ottprodnewline
 \ottprodline{|}{\ottnt{N}}{}{}{}{}\ottprodnewline
-\ottprodline{|}{\ottnt{formula}}{}{}{}{}}
+\ottprodline{|}{\ottnt{formula}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottnt{type}}{}{}{}{}}
 
 \newcommand{\ottgrammar}{\ottgrammartabular{
 \ottterminals\ottinterrule
@@ -290,7 +307,9 @@
 \ottP\ottinterrule
 \ottN\ottinterrule
 \ottformula\ottinterrule
+\otttype\ottinterrule
 \ottRed\ottinterrule
+\ottJtype\ottinterrule
 \ottjudgement\ottinterrule
 \ottuserXXsyntax\ottafterlastrule
 }}
@@ -481,8 +500,8 @@
 \newcommand{\ottdruleGetA}[1]{\ottdrule[#1]{%
 \ottpremise{\ottnt{H}  \ottsym{(}  \nu  \ottsym{)}  \ottsym{=}   \kappa ^{ \alpha } }%
 \ottpremise{\alpha  \ottsym{=}  \nu_{\bot} \, \nu_{\bot}'}%
-\ottpremise{\texttt{\textcolor{red}{<<no parses (char 6): index(***v',v\_bot', H) = n >>}}}%
-\ottpremise{\texttt{\textcolor{red}{<<no parses (char 7): get(v\_b***ot,n,h) = v'' >>}}}%
+\ottpremise{\ottsym{index(}  \nu'  \ottsym{,}  \nu_{\bot}'  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \mathit{n}}%
+\ottpremise{\ottsym{get(}  \nu_{\bot}  \ottsym{,}  \mathit{n}  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \nu''}%
 }{
 \ottsym{attr(}  \nu  \ottsym{,}  \nu'  \ottsym{)} \, \Gamma  \ottsym{;}  \ottnt{H}  \longrightarrow  \nu''  \ottsym{;}  \ottnt{H}}{%
 {\ottdrulename{GetA}}{}%
@@ -492,8 +511,8 @@
 \newcommand{\ottdruleReplA}[1]{\ottdrule[#1]{%
 \ottpremise{\ottnt{H}  \ottsym{(}  \nu  \ottsym{)}  \ottsym{=}   \kappa ^{ \alpha } }%
 \ottpremise{\alpha  \ottsym{=}  \nu_{\bot} \, \nu_{\bot}'}%
-\ottpremise{\texttt{\textcolor{red}{<<no parses (char 6): index(***v',v\_opt',H) = n) >>}}}%
-\ottpremise{\texttt{\textcolor{red}{<<no parses (char 7): set(v,n***,v'',H) = H' >>}}}%
+\ottpremise{\ottsym{index(}  \nu'  \ottsym{,}  \nu_{\bot}'  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \mathit{n}}%
+\ottpremise{\ottsym{set(}  \nu  \ottsym{,}  \mathit{n}  \ottsym{,}  \nu''  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \ottnt{H'}}%
 }{
 \ottsym{attr(}  \nu  \ottsym{,}  \nu'  \ottsym{)}  \ottsym{<-}  \nu'' \, \Gamma  \ottsym{;}  \ottnt{H}  \longrightarrow  \nu''  \ottsym{;}  \ottnt{H'}}{%
 {\ottdrulename{ReplA}}{}%
@@ -503,8 +522,8 @@
 \newcommand{\ottdruleSetA}[1]{\ottdrule[#1]{%
 \ottpremise{\ottsym{cpy(}  \ottnt{H}  \ottsym{,}  \nu''  \ottsym{)}  \ottsym{=}  \ottnt{H'}  \ottsym{,}  \nu'''}%
 \ottpremise{\ottnt{H'}  \ottsym{(}  \nu  \ottsym{)}  \ottsym{=}   \kappa ^{ \nu_{\bot} \, \nu_{\bot}' } }%
-\ottpremise{\texttt{\textcolor{red}{<<no parses (char 6): index(***v', v\_opt', H') = bottom >>}}}%
-\ottpremise{\texttt{\textcolor{red}{<<no parses (char 6): reads(***v', H) = s >>}}}%
+\ottpremise{\ottsym{index(}  \nu'  \ottsym{,}  \nu_{\bot}'  \ottsym{,}  \ottnt{H'}  \ottsym{)}  \ottsym{=} \, \bot}%
+\ottpremise{\ottsym{reads(}  \nu'  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \mathit{s}}%
 \ottpremise{\ottnt{H'}  \ottsym{(}  \nu_{\bot}  \ottsym{)}  \ottsym{=}   \ottsym{gen[}  \overline{v}  \ottsym{]} ^{ \alpha } }%
 \ottpremise{\ottnt{H'}  \ottsym{(}  \nu_{\bot}'  \ottsym{)}  \ottsym{=}   \ottsym{str[}  \overline{s}  \ottsym{]} ^{ \alpha' } }%
 \ottpremise{\ottnt{H''}  \ottsym{=}  \ottnt{H'}  \ottsym{[}  \nu_{\bot}  \ottsym{/}   \ottsym{gen[}  \overline{v} \, \nu'''  \ottsym{]} ^{ \alpha }   \ottsym{]}  \ottsym{[}  \nu_{\bot}'  \ottsym{/}   \ottsym{str[}  \overline{s} \, \mathit{s}  \ottsym{]} ^{ \alpha' }   \ottsym{]}}%
@@ -519,7 +538,7 @@
 \ottpremise{\ottnt{H'}  \ottsym{(}  \nu  \ottsym{)}  \ottsym{=}   \kappa ^{ \bot \, \bot } }%
 \ottpremise{\nu_{{\mathrm{4}}} \, \ottkw{fresh}}%
 \ottpremise{\nu_{{\mathrm{5}}} \, \ottkw{fresh}}%
-\ottpremise{\texttt{\textcolor{red}{<<no parses (char 6): reads(***v', H') = s >>}}}%
+\ottpremise{\ottsym{reads(}  \nu'  \ottsym{,}  \ottnt{H'}  \ottsym{)}  \ottsym{=}  \mathit{s}}%
 \ottpremise{\ottnt{H''}  \ottsym{=}  \ottnt{H'}  \ottsym{[}  \nu_{{\mathrm{4}}}  \ottsym{/}   \ottsym{gen[}  \nu_{{\mathrm{3}}}  \ottsym{]} ^{ \bot \, \bot }   \ottsym{]}  \ottsym{[}  \nu_{{\mathrm{5}}}  \ottsym{/}   \ottsym{str[}  \mathit{s}  \ottsym{]} ^{ \bot \, \bot }   \ottsym{]}}%
 }{
 \ottsym{attr(}  \nu  \ottsym{,}  \nu'  \ottsym{)}  \ottsym{<-}  \nu'' \, \Gamma  \ottsym{;}  \ottnt{H}  \longrightarrow  \nu''  \ottsym{;}  \ottnt{H''}}{%
@@ -726,8 +745,25 @@
 \newcommand{\ottdefnsRed}{
 \ottdefnreduce{}\ottdefnereduce{}\ottdefngetfun{}\ottdefngetfunXXeq{}\ottdefnsplitXXis{}\ottdefnargsXXis{}\ottdefnargsTwoXXis{}}
 
+% defns Jtype
+%% defn typing
+\newcommand{\ottdrulefake}[1]{\ottdrule[#1]{%
+}{
+\Gamma  \ottsym{\mbox{$\mid$}-}  \tau}{%
+{\ottdrulename{fake}}{}%
+}}
+
+\newcommand{\ottdefntyping}[1]{\begin{ottdefnblock}[#1]{$\Gamma  \ottsym{\mbox{$\mid$}-}  \tau$}{}
+\ottusedrule{\ottdrulefake{}}
+\end{ottdefnblock}}
+
+
+\newcommand{\ottdefnsJtype}{
+\ottdefntyping{}}
+
 \newcommand{\ottdefnss}{
 \ottdefnsRed
+\ottdefnsJtype
 }
 
 \newcommand{\ottall}{\ottmetavars\\[0pt]
