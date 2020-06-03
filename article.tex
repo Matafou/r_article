@@ -53,9 +53,23 @@
 \usepackage{geometry}
 \usepackage{ifthen}
 \usepackage{alltt}%hack
+\renewcommand{\ttdefault}{pcr}%hack aussi Pour avoir du mono gras dans les listings
+
 \geometry{a4paper,dvips,twoside,left=22.5mm,right=22.5mm,top=20mm,bottom=30mm}
 \usepackage{color}
 \input{./rules.tex}
+
+\lstset{%
+  flexiblecolumns=false,%
+  basicstyle=\tt\small,%
+  keywordstyle=\bf\ttfamily,%
+  commentstyle=\it\ttfamily,%
+  %frame=tb,% top + bottom
+  %morekeywords={foo,bar},%
+  % backgroundcolor=\color{grey2},%
+}
+\lstset{language=R}
+
 
 %====================== INFORMATION ET REGLES ======================
 
