@@ -215,12 +215,12 @@ N :: 'nnn' ::=
 
 formula :: formula_ ::=
 | judgement :: :: judgement
-| H( d ) = e G :: :: heap_promise_proj
-| H( d ) = v :: :: heap_promise_proj_data_address
-| H( i ) = F :: :: heap_frame_proj
-| H( v_opt ) = primv :: :: heap_primv_proj
+| H ( d ) = e G :: :: heap_promise_proj
+| H ( d ) = v :: :: heap_promise_proj_data_address
+| H ( i ) = F :: :: heap_frame_proj
+| H ( v_opt ) = primv :: :: heap_primv_proj
 | H ( v_opt ) = primvattr :: :: heap_primvattr_proj
-| H( v ) != primv :: :: not_heap_primv_proj
+| H ( v ) != primv :: :: not_heap_primv_proj
 | H = H' :: :: heap_is
 | G = G' :: :: env_is
 | F = F' :: :: frame_is
@@ -234,6 +234,7 @@ formula :: formula_ ::=
 | N === N' :: :: N_equi
 | formula \/ formula' :: M :: or
 | x notin N :: :: x_notin_N
+| x notin F :: :: x_notin_F
 | cpy( H , v ) = H' , v' :: :: cpy
 
 contextrules
@@ -355,7 +356,7 @@ x[[v]] <- v' G ; H --> v' ; H''
 
 cpy(H, v') = H', v''
 G = i * G'
-H'(i) = F
+H' ( i ) = F
 x notin F
 G'(H',x) = v'''
 cpy(H', v''') = H'', v''''

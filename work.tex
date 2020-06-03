@@ -23,60 +23,117 @@ This led to a peculiar mix of features rarely seen mixed together:
 
 Our approach is to work on R itself, keeping its syntax and its semantic, and provide a static typechecker on a wide enough subset of the language. We want such a type system to be able to detect type errors when they may occur (namely dynamic type errors occuring during the execution of the program) in a static fashion, but still be able to recover from the encounter with a type error and  perform the typechecking on the rest of the program as if nothing happened. This is a requirement for us because as we will see some of R features are highly dynamic and will just not be tamed to fit a static type system, but still, such features cannot be entirely abandonned and should be taken into consideration. By integrating from the get go in the type system ``support`` for what is not supported, we aim at providing a type checker that can be used on real world R programs as soon as possible even if we do not yet, and most likely never will, support the whole language. Thankfully there has been a lot of work in the field of computer science on related subjects that help us in our endeavour.
 
-Part of the work is also to integrate an implementation of the type system in an integrated development environment called "R++" being worked on by Zebrys.
+Our work is also to integrate an implementation of the type system in an integrated development environment called "R++" being worked on by Zebrys. This implementation should in the end provide real time typing errors messages to help programmers ensure their code is safe to run.
 
 
 On one hand the usefulness of a language like R is indisputable as shown by the number of packages and the vitality of the community of users, but on the other hand some choices in the language design are now questionable. In particular, they undermine code robustness and efficient execution, while the size of statisticians' data is growing rapidly, thus leading the community into real performance problems. These performance issues are twofold, some are due to the standard R interpreter not exploiting the parallelism of modern devices (multi-core architecture, GPU), others are inherent to the language design that makes some optimizations difficult or impossible without imposing restrictions on the programs considered.
 The objective of the thesis is threefold, each objective being a step towards the next:
-1. Develop and formalize an algorithm for typing R programs, supporting as much as possible of the R language. Like typescript for javascript, this program should be usable by an R developer as a code analysis tool to detect some error classes statically rather than later when testing or recieving user anomalies reports.
-2. This typechecker, possibly constrained for features deemed unsuitable for the high performance code, will serve as a basic brick for the compiler that will be developed later. The purpose of this work is to enable the statistician to work on data in the order of magnitude of one gigabyte on a single computer. Performance gains will justify the restriction to a subset of the language.
-3. Compilation towards distributed code might eventually be done to consider computations involving real big-data.\\
+\begin{enumerate}
+\item[1] Develop and formalize an algorithm for typing R programs, supporting as much as possible of the R language. Like typescript for javascript, this program should be usable by an R developer as a code analysis tool to detect some error classes statically rather than later when testing or recieving user anomalies reports.
+\item[2] This typechecker, possibly constrained for features deemed unsuitable for the high performance code, will serve as a basic brick for the compiler that will be developed later. The purpose of this work is to enable the statistician to work on data in the order of magnitude of one gigabyte on a single computer. Performance gains will justify the restriction to a subset of the language.
+\item[3] Compilation towards distributed code might eventually be done to consider computations involving real big-data.\\
+\end{enumerate}
 
 \subsection{Static type system for R}
 
 
 R belongs to the family of dynamically typed languages, and just like python or javascript it means that unrecoverable type error may occur during the execution of a program, leading to the halt of said execution. Our goal is to define a type system such that we can statically garantee that certain class of errors will not occur at the runtime. We do not aim at typing the whole language but a reasonable subset can be achieved.
-It is convenient to first talk about the semantic of R. At its core, lies a functional heart, argument passing is always performed by value rather than by reference, and there is a copy-on-write mechanism impemented. Functions are first class valuesand as such can be passed as en argument or serve as a returned value. R implements a form of lazyness limited to the arguments passed during a function call, the strategy of evaluation is by necessity. It is worth noting that here the call by nessecity is not just an optimised form of a call by name, but that it has real impacts on the general semantic of the language, that is because of the way environment and name lookup work in R. R also features object oriented programming, with several different object oriented systems coexisting with one another, operations working in a transparent way on matrices, vectors and lists, and a powerful reflexive programming capability. All these mixed together offer some intresesting challenges typing wise.
+It is convenient to first talk about the semantic of R. At its core, lies a functional heart, argument passing is always performed by value rather than by reference, and there is a copy-on-write mechanism impemented. Functions are first class values and as such can be passed as en argument or serve as a returned value. R implements a form of lazyness limited to the arguments passed during a function call, the strategy of evaluation is by necessity. It is worth noting that here the call by nessecity is not just an optimised form of a call by name, but that it has real impacts on the general semantic of the language, that is because of the way environment and name lookup work in R. R also features object oriented programming, with several different object oriented systems coexisting with one another, operations working in a transparent way on matrices, vectors and lists, and a powerful reflexive programming capability. All these mixed together offer some interesting challenges typing wise.
 
 
-\subsubsection{Scopes and bindings}
+\section{Semantic}
 
-Even if the scope of variables is lexical, any- free variable occuring in the body of a function is not fixed by the state of the environment at the time of the definition of the function but by the state of the environment at the time the function is called, the value bound to the free variable is determined by looking across the hierarchy of the environments englobing the definition of the function.
+There has already been various works done surrounding R, such as the evaluation of the design of the R langage done by F. Morandat et al., they provided what is to our knowledge the first and only formalized semantic of the core of the R langage, encompassing some of the most glaring oddities one might find in R. Their work is valuable to us as it provides a stepping stone towards bringing R in the flock of other well studied programming langages in our field.
+
+Some of R features need to be tampered with in our work to allow any form of static reasoning on programs. Most of what we find in R code ends up being syntaxic sugar for a call to a function that can be redefined, changing the overall semantic of the langage. The usually well defined, unchangeable, basic features of other programming langages are here completely redefinable. This includes the assignment itself, as well as control structures, parenthesis and pretty much everything else.
+
+\lstinputlisting[]{./snippets/assignment_sugar.R}
+
+All those expressions are equivalent to their ``functionalized'' counterpart, and it is worth noting that masking the primitive definition of one of those functions has the expected effect.
+
+\lstinputlisting[]{./snippets/assignment_redef.R}
+
+Line 3 does not modify the binding to x, it simply returns 42 as is defined line 2.
+
+This leads to a situation where we would be pretty much unable to say anything about a R program until it is run, to circumvent this issue we need to make some basic assumptions about the fragment we want to type and this means that such features cannot be taken into account.
+
+\subsection{Scopes and bindings}
+
+Even if the scope of variables is lexical, any- free variable occuring in the body of a function is not fixed by the state of the environment at the time of the definition of the function but by the state of the environment at the time the function is called, the value bound to the free variable is determined by looking across the hierarchy of the environments englobing the definition of the function. This gives a somewhat unintuitive feel to the scopes manipulated by the program, while akin to the javascript semantic in that regard. The main culprit being that we may have a function defined with a free variable x that may or may not exist in the upper scopes at the time of the definition of the function, and when and only when this function is called, we will find a definition of x in the upper scopes if it exists at this point in the execution, this definition of x may be lexically found in the program long after such a function was defined, and as long as the assignement was performed in a scope visible from the definition of the function it will capture the search.
+
+The simplest form showing this behaviour can be seen with this snippet of R code:
+
+\lstinputlisting[]{./snippets/scopes.R}
+
+From line 1 to 3 we define a function and assign it to f. This function returns the value corresponding to an identifier x on line 2. When the execution reaches the end of line 3, the top level environment contains a binding from f to the function and the parent frame of its definition, here the top level environment. At line 4 we perform an assignment to x in the top level environment. Then when we reach line 5 and perform the call to f, a new environment is build whose parent is the aforementionned parent frame (the top level environment) to execute the body of the function, so when we need to find the value of x, we search for it in the current frame we just created, which does not hold any definition for x, then we search for it in the parent frame, and find the value we just assigned on line 4.
+
+
+This mechanism can have slightly more complex consequences, as shown in the next snippet of code:
+
+\lstinputlisting[]{./snippets/scopes2.R}
+
+On line 1 we perform an assignment to x with the value 0. From line 2 to 9 we define the function f, it assigns the function g with the same definition as above but in the body of f, calls g and assigns its return value to y on line 6, assigns the value 42 to x on line 7 and returns g on line 8.
+We then call f on line 10 and call the result of the first call, that is the g function defined in the body of f.
+When performing the first call we execute the body of f, and when we reach line 6 and perform the call to g the returned value is 0, because we search for x in the current frame built when f was called and we don't find any x, so we find it when searching in the parent frame. But when we assign x on line 7 and then return g before calling it, the reruned value is 42, that the x we defined in the execution of the body of f. This happens because the parent frame of g is the frame built during the evaluation of the body of f and it now contains a binding for x, capturing the search. This shows that depending on when a function is called, the binding we find may change following the state of the frame hierarchy linked to the function we call.
+
+Just as during evaluation, where function values hold information on their enclosing parent frames to perform name lookup when needed, the type of functions needs to mimic this behaviour, and in the same way, we may only know which lexical definition of an identifier will capture the search on a call to call basis.
+
+In a practical way this means that our function type constructor ( $\rightarrow$ ) has to hold not only informations about the types of inputs and the type of the output of such a function, but also enough information for the right identifiers to be lexically designated when a call to a function is met. We do this by enriching the classical $\rightarrow$ we might be familiar with from usual functional langages with some form of predicates on the expected shape of the typing environment. This enterprise is very similar to what one may find when studying various forms of types with effects, which attempt to capture some otherwise unexpressed evaluation properties of code fragments at the type level. This hints towards what our tools are type-wise to tackle some of the challenges R may throw at us.
+
+\subsection{Assignment}
+
+Assignments in R can update the relevant binding instead of simply masking it as can be seen in functional langages. This leads to the aforementioned behaviour of scopes, as unlike traditional closures, R function values encapsulate a reference towards their the environment of their definition scope instead of an immutable copy of it. Each environment holds a reference to its parent, all the way up to the top level environment. This provides a tree like shape to the environment of execution whose root is the top environment. When an assignment occurs it modifies the current environment, either by updating an already existing binding or by adding a new one. By doing so, as every child of an environment has visibility on it, it will modify the value that will be found if the search path reaches this now modified environment.
+
+\subsection{Function Definition}
+
+blabalbal
+
+\subsection{Function Call}
+
+blabalbalabal
+
+\subsection{Super Assignment}
+
+blablabla
 
 
 
-UN EXEMPLE?
+\subsection{Control Structures}
+
+blablabalbala
 
 
 
-\subsubsection{Basics}
 
-how does this work?
 
-\subsubsection{R Semantic}
+\section{Type System}
 
-Formal semantic for R fragment
+Most of our work revolves around the formalization of a static type system for a fragment of R and its implementation in a usable fashion.
 
-\subsubsection{Type System}
+\subsection{The Types}
 
 The typing rules
 
-\subsubsection{Type Inference}
+\subsection{Type Inference}
 
 how do we infer types?
 
-\subsubsection{Constraint Language}
+\subsection{Constraint Language}
 
 inference as a constraint solving problem
 
-\subsubsection{Constraint Generation}
+\subsection{Constraint Generation}
 
 generating said constraints
 
-\subsubsection{Constraint Solving}
+\subsection{Constraint Solving}
 
 solving the constraints
 
+\subsection{Implementation}
+
+
+blabalbla
 
 typing a function call
 Control Structures
