@@ -216,7 +216,11 @@
 \ottprodline{|}{\ottnt{formula}  \vee  \ottnt{formula'}} {\textsf{M}}{}{}{}\ottprodnewline
 \ottprodline{|}{\mathit{x} \, \notin \, \ottnt{N}}{}{}{}{}\ottprodnewline
 \ottprodline{|}{\mathit{x} \, \notin \, \ottnt{F}}{}{}{}{}\ottprodnewline
-\ottprodline{|}{\ottsym{cpy(}  \ottnt{H}  \ottsym{,}  \nu  \ottsym{)}  \ottsym{=}  \ottnt{H'}  \ottsym{,}  \nu'}{}{}{}{}}
+\ottprodline{|}{\ottsym{cpy(}  \ottnt{H}  \ottsym{,}  \nu  \ottsym{)}  \ottsym{=}  \ottnt{H'}  \ottsym{,}  \nu'}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{assign(}  \mathit{x}  \ottsym{,}  \nu  \ottsym{,}  \Gamma  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \ottnt{H'}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{readn(}  \nu  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=} \, \ottkw{m}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{get(}  \nu  \ottsym{,} \, \ottkw{m} \, \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \nu'  \ottsym{,}  \ottnt{H'}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\ottsym{set(}  \nu  \ottsym{,} \, \ottkw{m} \, \ottsym{,}  \nu'  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \ottnt{H'}}{}{}{}{}}
 
 \newcommand{\ottRed}{
 \ottrulehead{\ottnt{Red}}{::=}{}\ottprodnewline
@@ -428,7 +432,7 @@
 \newcommand{\ottdruleDAss}[1]{\ottdrule[#1]{%
 \ottpremise{\ottsym{cpy(}  \ottnt{H}  \ottsym{,}  \nu  \ottsym{)}  \ottsym{=}  \ottnt{H'}  \ottsym{,}  \nu'}%
 \ottpremise{\Gamma  \ottsym{=}  \iota \, \ottsym{*}  \Gamma'}%
-\ottpremise{\texttt{\textcolor{red}{<<no parses (char 7): assign(***x,v',G',H') = H'' >>}}}%
+\ottpremise{\ottsym{assign(}  \mathit{x}  \ottsym{,}  \nu'  \ottsym{,}  \Gamma'  \ottsym{,}  \ottnt{H'}  \ottsym{)}  \ottsym{=}  \ottnt{H''}}%
 }{
 \mathit{x}  \ottsym{<<-}  \nu \, \Gamma  \ottsym{;}  \ottnt{H}  \longrightarrow  \nu  \ottsym{;}  \ottnt{H''}}{%
 {\ottdrulename{DAss}}{}%
@@ -437,8 +441,8 @@
 
 \newcommand{\ottdruleGet}[1]{\ottdrule[#1]{%
 \ottpremise{\Gamma  \ottsym{(}  \ottnt{H}  \ottsym{,}  \mathit{x}  \ottsym{)}  \ottsym{=}  \nu'}%
-\ottpremise{\texttt{\textcolor{red}{<<no parses (char 6): readn(***v, H) = m >>}}}%
-\ottpremise{\texttt{\textcolor{red}{<<no parses (char 4): get(***v', m, H) = v'', H' >>}}}%
+\ottpremise{\ottsym{readn(}  \nu  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=} \, \ottkw{m}}%
+\ottpremise{\ottsym{get(}  \nu'  \ottsym{,} \, \ottkw{m} \, \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=}  \nu''  \ottsym{,}  \ottnt{H'}}%
 }{
 \ottsym{x[[}  \nu  \ottsym{]]} \, \Gamma  \ottsym{;}  \ottnt{H}  \longrightarrow  \nu''  \ottsym{;}  \ottnt{H'}}{%
 {\ottdrulename{Get}}{}%
@@ -449,8 +453,8 @@
 \ottpremise{\ottsym{cpy(}  \ottnt{H}  \ottsym{,}  \nu'  \ottsym{)}  \ottsym{=}  \ottnt{H'}  \ottsym{,}  \nu''}%
 \ottpremise{\Gamma  \ottsym{=}  \iota \, \ottsym{*}  \Gamma'}%
 \ottpremise{\iota \, \ottsym{(}  \ottnt{H'}  \ottsym{,}  \mathit{x}  \ottsym{)}  \ottsym{=}  \nu'''}%
-\ottpremise{\texttt{\textcolor{red}{<<no parses (char 6): readn(***v, H') = m >>}}}%
-\ottpremise{\texttt{\textcolor{red}{<<no parses (char 4): set(***v''', m, v'', H') = H'' >>}}}%
+\ottpremise{\ottsym{readn(}  \nu  \ottsym{,}  \ottnt{H'}  \ottsym{)}  \ottsym{=} \, \ottkw{m}}%
+\ottpremise{\ottsym{set(}  \nu'''  \ottsym{,} \, \ottkw{m} \, \ottsym{,}  \nu''  \ottsym{,}  \ottnt{H'}  \ottsym{)}  \ottsym{=}  \ottnt{H''}}%
 }{
 \ottsym{x[[}  \nu  \ottsym{]]}  \ottsym{<-}  \nu' \, \Gamma  \ottsym{;}  \ottnt{H}  \longrightarrow  \nu'  \ottsym{;}  \ottnt{H''}}{%
 {\ottdrulename{SetL}}{}%
@@ -466,8 +470,8 @@
 \ottpremise{\ottsym{cpy(}  \ottnt{H'}  \ottsym{,}  \nu'''  \ottsym{)}  \ottsym{=}  \ottnt{H''}  \ottsym{,}  \nu''''}%
 \ottpremise{\ottnt{F'}  \ottsym{=}  \ottnt{F}  \ottsym{[}  \mathit{x}  \ottsym{/}  \nu''''  \ottsym{]}}%
 \ottpremise{\ottnt{H'''}  \ottsym{=}  \ottnt{H''}  \ottsym{[} \, \iota \, \ottsym{/}  \ottnt{F'}  \ottsym{]}}%
-\ottpremise{\texttt{\textcolor{red}{<<no parses (char 6): readn(***v, H) = m >>}}}%
-\ottpremise{\texttt{\textcolor{red}{<<no parses (char 4): set(***v'''', m, v'', H''') = H'''' >>}}}%
+\ottpremise{\ottsym{readn(}  \nu  \ottsym{,}  \ottnt{H}  \ottsym{)}  \ottsym{=} \, \ottkw{m}}%
+\ottpremise{\ottsym{set(}  \nu''''  \ottsym{,} \, \ottkw{m} \, \ottsym{,}  \nu''  \ottsym{,}  \ottnt{H'''}  \ottsym{)}  \ottsym{=}  \ottnt{H''''}}%
 }{
 \ottsym{x[[}  \nu  \ottsym{]]}  \ottsym{<-}  \nu' \, \Gamma  \ottsym{;}  \ottnt{H}  \longrightarrow  \nu'  \ottsym{;}  \ottnt{H''''}}{%
 {\ottdrulename{SetG}}{}%
@@ -478,7 +482,7 @@
 \ottpremise{\ottnt{H}  \ottsym{(}  \nu  \ottsym{)}  \ottsym{=}   \kappa ^{ \alpha } }%
 \ottpremise{\alpha  \ottsym{=}  \nu_{\bot} \, \nu_{\bot}'}%
 \ottpremise{\texttt{\textcolor{red}{<<no parses (char 6): index(***v',v\_bot', H) = n >>}}}%
-\ottpremise{\texttt{\textcolor{red}{<<no parses (char 4): get(***v\_bot,n,h) = v'' >>}}}%
+\ottpremise{\texttt{\textcolor{red}{<<no parses (char 7): get(v\_b***ot,n,h) = v'' >>}}}%
 }{
 \ottsym{attr(}  \nu  \ottsym{,}  \nu'  \ottsym{)} \, \Gamma  \ottsym{;}  \ottnt{H}  \longrightarrow  \nu''  \ottsym{;}  \ottnt{H}}{%
 {\ottdrulename{GetA}}{}%
@@ -489,7 +493,7 @@
 \ottpremise{\ottnt{H}  \ottsym{(}  \nu  \ottsym{)}  \ottsym{=}   \kappa ^{ \alpha } }%
 \ottpremise{\alpha  \ottsym{=}  \nu_{\bot} \, \nu_{\bot}'}%
 \ottpremise{\texttt{\textcolor{red}{<<no parses (char 6): index(***v',v\_opt',H) = n) >>}}}%
-\ottpremise{\texttt{\textcolor{red}{<<no parses (char 4): set(***v,n,v'',H) = H' >>}}}%
+\ottpremise{\texttt{\textcolor{red}{<<no parses (char 7): set(v,n***,v'',H) = H' >>}}}%
 }{
 \ottsym{attr(}  \nu  \ottsym{,}  \nu'  \ottsym{)}  \ottsym{<-}  \nu'' \, \Gamma  \ottsym{;}  \ottnt{H}  \longrightarrow  \nu''  \ottsym{;}  \ottnt{H'}}{%
 {\ottdrulename{ReplA}}{}%

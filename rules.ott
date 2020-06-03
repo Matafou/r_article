@@ -236,6 +236,10 @@ formula :: formula_ ::=
 | x notin N :: :: x_notin_N
 | x notin F :: :: x_notin_F
 | cpy( H , v ) = H' , v' :: :: cpy
+| assign( x , v , G , H ) = H' :: :: assign
+| readn( v , H ) = m :: :: readn
+| get( v , m , H ) = v' , H' :: :: get
+| set( v , m , v' , H ) = H'  :: :: set
 
 contextrules
 cc _:: e :: e
